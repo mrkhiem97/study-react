@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import RemoteStoreFiltering from './components/BSTableRemoteStoreFiltering'
+import BSTMain from './components/BSTMain'
 
 
 import logo from './logo.svg';
@@ -27,7 +27,7 @@ class App extends Component {
 
         <div className="App-body">
           <div className="col-md-12">
-            <RemoteStoreFiltering />
+            <BSTMain />
           </div>
         </div>
 

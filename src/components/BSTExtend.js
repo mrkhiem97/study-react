@@ -1,6 +1,7 @@
 import React from 'react';
 import * as ReactBST from 'react-bootstrap-table';
-import * as CustomBSTComponents from './custom-table-components/custom-table-components.js'
+import * as CustomBSTComponents from './custom-table-components/custom-table-components.js';
+import * as CustomModal from './custom-modal-form/custom-modal';
 import { BSTValidatorHelper } from './custom-validators/custom-validator.js'
 
 const BootstrapTable = ReactBST.BootstrapTable;
@@ -74,7 +75,7 @@ class CustomInsertModal extends React.Component {
     }
 }
 
-class BSTableRemoteFiltering extends React.Component {
+class BSTExtend extends React.Component {
     createCustomModal = (onModalClose, onSave, columns, validateState, ignoreEditable) => {
         const attr = {
             onModalClose, onSave, columns, validateState, ignoreEditable
@@ -88,14 +89,14 @@ class BSTableRemoteFiltering extends React.Component {
     // View column
     createViewColumn = (cell, row, formatExtraData) => {
         return (
-            <CustomBSTComponents.BSTViewButton />
+            <CustomModal.ProductDetailModal itemId={row.id} action={this.props.handleEditAction} />
         );
     }
 
     // Edit column
     createEditColumn = (cell, row, formatExtraData) => {
         return (
-            <CustomBSTComponents.BSTEditButton />
+            <CustomModal.ProductEditModal itemId={row.id} action={this.props.handleEditAction} />
         );
     }
 
@@ -103,7 +104,7 @@ class BSTableRemoteFiltering extends React.Component {
     createDeleteColumn = (cell, row, formatExtraData) => {
         console.debug(`rows: ${JSON.stringify(row)}`);
         return (
-            <CustomBSTComponents.BSTDeleteButton itemId={row.id} onClick={this.props.handleDeleteBtnClick} />
+            <CustomModal.ProductDeleteModal itemId={row.id} action={this.props.handleDeleteAction} />
         );
     }
 
@@ -129,10 +130,10 @@ class BSTableRemoteFiltering extends React.Component {
                 <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_VIEW} dataFormat={this.createViewColumn}>
                     View
                 </TableHeaderColumn>
-                <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_EDIT} dataFormat={this.createEditColumn}>
+                <TableHeaderColumn row="1" width="60" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_EDIT} dataFormat={this.createEditColumn}>
                     Edit
                 </TableHeaderColumn>
-                <TableHeaderColumn row="1" width="80" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_DELETE} dataFormat={this.createDeleteColumn}>
+                <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_DELETE} dataFormat={this.createDeleteColumn}>
                     Delete
                 </TableHeaderColumn>
             </BootstrapTable >
@@ -141,4 +142,4 @@ class BSTableRemoteFiltering extends React.Component {
 }
 
 
-export default BSTableRemoteFiltering;
+export default BSTExtend;

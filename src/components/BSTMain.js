@@ -1,9 +1,9 @@
 import React from 'react';
 import * as RB from 'react-bootstrap';
-import ModalProduct from './custom-modal-form/custom-modal.js'
-import RemoteFiltering from './BSTableRemoteFiltering'
+import * as CustomModal from './custom-modal-form/custom-modal';
+import BSTExtend from './BSTExtend.js';
 
-class BSTableRemoteStoreFiltering extends React.Component {
+export default class BSTMain extends React.Component {
     constructor(props) {
         super(props);
         this.products = this.getProducts();
@@ -125,12 +125,9 @@ class BSTableRemoteStoreFiltering extends React.Component {
     render() {
         return (
             <div>
-                <ModalProduct />
-
-                <RemoteFiltering onFilter handleDeleteBtnClick={this.handleDeleteBtnClick} onFilterChange={this.onFilterChange.bind(this)} { ...this.state } />
+                <CustomModal.ModalProduct />
+                <BSTExtend handleDeleteBtnClick={this.handleDeleteBtnClick} onFilterChange={this.onFilterChange.bind(this)} { ...this.state } />
             </div>
         );
     }
 }
-
-export default BSTableRemoteStoreFiltering;
