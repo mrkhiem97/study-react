@@ -48,9 +48,6 @@ export class BSTDeleteButton extends React.Component {
 }
 
 export class BSTModal extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
     render() {
         const modalHeader = this.props.header;

@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import * as RB from 'react-bootstrap';
-const Button = RB.Button;
 const ControlLabel = RB.ControlLabel;
 const FormControl = RB.FormControl;
 const FormGroup = RB.FormGroup;
@@ -22,7 +21,7 @@ export default class InputControl extends React.Component {
 
         // 2. State of control will be the inputted value
         this.state = {
-            value: this.props.data.value
+            controlValue: this.props.data.value
         };
     }
 
@@ -31,13 +30,23 @@ export default class InputControl extends React.Component {
         const node = ReactDOM.findDOMNode(this.refs[this.props.data.field]);
 
         // Do validation base on infterface validator
-        this.controlStatus = this.props.options.validator(node.value);
+        this.controlStatus = this.props.option.validator(node.value);
         this.props.data.value = node.value;
         this.props.data.isValid = this.controlStatus.valid;
+        this.props.option.triggerValidator = node;
+
+
+        console.log(`change function: ${node.onChange}`);
 
         this.setState({
-            value: node.value
+            controlValue: node.value
         });
+    }
+
+    // Handle trigger validate
+    handeValidateTrigger = () => {
+        const node = ReactDOM.findDOMNode(this.refs[this.props.data.field]);
+        node.onChange();
     }
 
     getValidationState = () => {
@@ -56,7 +65,7 @@ export default class InputControl extends React.Component {
         return (
             <FormGroup controlId={this.props.data.controlId} validationState={this.getValidationState()}>
                 <ControlLabel>{this.props.data.label}</ControlLabel>
-                <FormControl type={this.props.data.controlType} disabled={this.props.data.isDisable} value={this.state.value} placeholder={this.props.data.placeHolder} ref={this.props.data.field} onChange={this.handleChange} />
+                <FormControl type={this.props.data.controlType} disabled={this.props.data.isDisable} value={this.state.controlValue} placeholder={this.props.data.placeHolder} ref={this.props.data.field} onChange={this.handleChange} />
                 <FormControl.Feedback />
                 <HelpBlock>{this.getValidateMessage()}</HelpBlock>
             </FormGroup>

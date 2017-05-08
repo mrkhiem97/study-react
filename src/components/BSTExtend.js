@@ -6,86 +6,9 @@ import { BSTValidatorHelper } from './custom-validators/custom-validator.js'
 
 const BootstrapTable = ReactBST.BootstrapTable;
 const TableHeaderColumn = ReactBST.TableHeaderColumn;
-const InsertButton = ReactBST.InsertButton;
-
-class CustomInsertModal extends React.Component {
-
-    handleSaveBtnClick = () => {
-        const { columns, onSave } = this.props;
-        const newRow = {};
-
-        columns.forEach((column, i) => {
-            console.debug(`Add Column ${i}: ${JSON.stringify(column)}`);
-            if (!column.hiddenOnInsert) {
-                newRow[column.field] = this.refs[column.field].value;
-            } else {
-                newRow[column.field] = undefined;
-            }
-        }, this);
-
-        // You should call onSave function and give the new row
-        console.debug(`Onsave: ${JSON.stringify(onSave)}`);
-        onSave(newRow);
-    }
-
-    render() {
-        const { onModalClose, onSave, columns, validateState, ignoreEditable } = this.props;
-
-        // Create modal header
-        const createModalHeader = (
-            <div>Add new product</div>
-        );
-
-        // Create modal header
-        const createModalFooter = (
-            <div>
-                <CustomBSTComponents.BSTCloseButton onClick={this.props.onModalClose} />
-                <CustomBSTComponents.BSTSaveButton onClick={() => this.handleSaveBtnClick(this.props.columns, this.props.onSave)} />
-            </div>
-        );
-
-        return (
-            <CustomBSTComponents.BSTModal header={createModalHeader} footer={createModalFooter}>
-                <div>
-                    {
-                        columns.map((column, i) => {
-                            const { editable, format, field, name, hiddenOnInsert } = column;
-
-                            console.debug(`Render column ${i}: ${JSON.stringify(column)}`);
-                            if (hiddenOnInsert) {
-                                // when you want same auto generate value
-                                // and not allow edit, for example ID field
-                                return null;
-                            }
-                            const error = validateState[field] ?
-                                (<span className='help-block bg-danger'>{validateState[field]}</span>) :
-                                null;
-                            return (
-                                <div className='form-group' key={field}>
-                                    <label>{name} : </label>
-                                    <input className="form-control" ref={field} type='text' defaultValue={''} />
-                                    {error}
-                                </div>
-                            );
-                        })
-                    }
-                </div>
-            </CustomBSTComponents.BSTModal>
-        );
-    }
-}
 
 /* BST Table */
 class BSTExtend extends React.Component {
-    createCustomModal = (onModalClose, onSave, columns, validateState, ignoreEditable) => {
-        const attr = {
-            onModalClose, onSave, columns, validateState, ignoreEditable
-        };
-
-        return (
-            <CustomInsertModal { ...attr } />
-        );
-    }
 
     // View column
     createViewColumn = (cell, row, formatExtraData) => {
@@ -119,7 +42,6 @@ class BSTExtend extends React.Component {
 
     render() {
         const options = {
-            insertModal: this.createCustomModal,
             onFilterChange: this.props.onFilterChange,
         };
 

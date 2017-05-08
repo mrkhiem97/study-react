@@ -1,6 +1,6 @@
 import React from 'react';
 import * as RB from 'react-bootstrap';
-import * as CustomBSTComponents from '../custom-table-components/custom-table-components.js';
+import { BSTValidatorHelper } from '../custom-validators/custom-validator.js';
 import ProductForm from './custom-form.js'
 
 const Button = RB.Button;
@@ -11,7 +11,7 @@ export class ProductAddModal extends React.Component {
     constructor(props) {
         super(props);
 
-        this.product = {
+        this.defaultProductData = {
             id: '',
             name: '',
             price: 0
@@ -19,13 +19,64 @@ export class ProductAddModal extends React.Component {
 
         this.state = {
             show: false,
-            product: this.product
+            product: this.defaultProductData
+        };
+
+        // ProductId
+        const dataProductId = {
+            controlId: 'controlProductId',
+            controlType: 'text',
+            label: 'Product Id',
+            field: 'id',
+            value: this.state.product.id,
+            isValid: true,
+            isDisable: false
+        };
+        const optionProductId = {
+            validator: BSTValidatorHelper.validatateProductId,
+            triggerValidator: null
+        };
+
+        // ProductName
+        const dataProductName = {
+            controlId: 'controlProductName',
+            controlType: 'text',
+            label: 'Product name',
+            field: 'name',
+            value: this.state.product.name,
+            isValid: true,
+            isDisable: false
+        }
+        const optionProductName = {
+            validator: BSTValidatorHelper.validatateProductName,
+            triggerValidator: null
+        }
+
+        // ProductPrice
+        const dataProductPrice = {
+            controlId: 'controlProductPrice',
+            controlType: 'text',
+            label: 'Product price',
+            field: 'price',
+            value: this.state.product.price,
+            isValid: true,
+            isDisable: false
+        };
+        const optionProductPrice = {
+            validator: BSTValidatorHelper.validatateProductPrice,
+            triggerValidator: null
+        }
+
+        this.formOption = {
+            id: { data: dataProductId, option: optionProductId },
+            name: { data: dataProductName, option: optionProductName },
+            price: { data: dataProductPrice, option: optionProductPrice },
         };
     }
 
     componentDidMount = () => {
         const product = {};
-        Object.assign(product, this.product);
+        Object.assign(product, this.defaultProductData);
         this.setState({
             show: false,
             product: product
@@ -34,7 +85,7 @@ export class ProductAddModal extends React.Component {
 
     showModal = () => {
         const product = {};
-        Object.assign(product, this.product);
+        Object.assign(product, this.defaultProductData);
         this.setState({
             show: true,
             product: product
@@ -43,7 +94,13 @@ export class ProductAddModal extends React.Component {
 
     hideModal = () => {
         const product = {};
-        Object.assign(product, this.product);
+        
+        // Reset form input value when closed
+        this.formOption["id"].data.value = '';
+        this.formOption["name"].data.value = '';
+        this.formOption["price"].data.value = '';
+
+        Object.assign(product, this.defaultProductData);
         this.setState({
             show: false,
             product: product
@@ -51,8 +108,23 @@ export class ProductAddModal extends React.Component {
     }
 
     handleAddAction = () => {
-        // const product = .....
-        this.props.handleAddAction(this.state.product);
+        // Do validate again
+        let product = {};
+
+
+        for (let field in this.formOption) {
+            this.formOption[field].option.triggerValidator.click();
+            let value = this.formOption[field].data.value;
+            let isValid = this.formOption[field].option.validator(value).valid;
+            product[field] = value;
+
+            if (!isValid) {
+                this.forceUpdate();
+                return;
+            }
+        }
+
+        this.props.handleAddAction(product);
         this.hideModal();
     }
 
@@ -67,7 +139,7 @@ export class ProductAddModal extends React.Component {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductForm product={this.state.product} action="create" />
+                        <ProductForm product={this.state.product} formOption={this.formOption} action="create" />
                     </Modal.Body>
 
                     <Modal.Footer>

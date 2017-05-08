@@ -1,5 +1,4 @@
 import React from 'react';
-import * as RB from 'react-bootstrap';
 import * as CustomModal from './custom-modal-form/custom-modal';
 import BSTExtend from './BSTExtend.js';
 
@@ -138,7 +137,7 @@ export default class BSTMain extends React.Component {
     handleDeleteAction = (itemId) => {
         console.log(`Delete item id: ${itemId}`);
         const data = this.state.data.filter((product) => {
-            return product.id != itemId;
+            return product.id !== itemId;
         });
 
         console.log(`Data after deleted: ${JSON.stringify(data)}`);
