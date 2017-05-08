@@ -1,39 +1,27 @@
 import React from 'react';
 import * as CustomModal from './custom-modal-form/custom-modal';
-import BSTExtend from './BSTExtend.js';
+import StoreHelper from './helpers/StoreHelper';
+import CRUDTable from './CRUDTable';
 
 /* Main table */
-export default class BSTMain extends React.Component {
+export default class CRUDTableTemplate extends React.Component {
     constructor(props) {
         super(props);
-        this.products = this.getProducts();
+        this.products = StoreHelper.findAllProducts();
         this.state = {
             data: this.products
         };
+
+        this.count = 0;
     }
 
-    getProducts() {
-        var products = [{
-            id: 1,
-            name: "Product1",
-            price: 120
-        }, {
-            id: 2,
-            name: "Product2",
-            price: 80
-        }, {
-            id: 3,
-            name: "Product3",
-            price: 1000
-        }];
-        return products;
-    }
-
-    filterNumber(targetVal, filterVal, comparator) {
+    // Filter number
+    filterNumber = (targetVal, filterVal, comparator) => {
         let valid = true;
+        
         switch (comparator) {
             case '=': {
-                if (targetVal !== filterVal) {
+                if (targetVal != filterVal) {
                     valid = false;
                 }
                 break;
@@ -55,10 +43,12 @@ export default class BSTMain extends React.Component {
                 break;
             }
         }
+        
         return valid;
     }
 
-    filterText(targetVal, filterVal) {
+    // Filter text
+    filterText = (targetVal, filterVal) => {
         if (targetVal.toString().toLowerCase().indexOf(filterVal) === -1) {
             return false;
         }
@@ -75,7 +65,7 @@ export default class BSTMain extends React.Component {
             return;
         }
 
-        console.debug(JSON.stringify(filterObj));
+        console.debug(`Filter structure: ${JSON.stringify(filterObj)}`);
         const data = this.products.filter((product) => {
             let valid = true;
             let filterValue;
@@ -83,13 +73,13 @@ export default class BSTMain extends React.Component {
             for (const key in filterObj) {
                 const targetValue = product[key];
 
-                console.debug(`Key: ${key} - Value: ${targetValue} - Type: ${filterObj[key].type}`);
                 switch (filterObj[key].type) {
                     case 'NumberFilter': {
                         filterValue = filterObj[key].value.number;
                         valid = this.filterNumber(targetValue, filterValue, filterObj[key].value.comparator);
                         break;
                     }
+
                     default: {
                         filterValue = (typeof filterObj[key].value === 'string') ?
                             filterObj[key].value.toLowerCase() : filterObj[key].value;
@@ -104,6 +94,9 @@ export default class BSTMain extends React.Component {
             }
             return valid;
         });
+
+        console.debug(`Count: ${this.count}`);
+        this.count = 0;
         this.setState({
             data: data
         });
@@ -124,7 +117,8 @@ export default class BSTMain extends React.Component {
         var tempData = this.state.data.slice();
 
         tempData.forEach((item) => {
-            if (item.id === product.id) {
+            if (item.id == product.id) {
+
                 Object.assign(item, product);
                 return;
             }
@@ -137,7 +131,7 @@ export default class BSTMain extends React.Component {
     handleDeleteAction = (itemId) => {
         console.log(`Delete item id: ${itemId}`);
         const data = this.state.data.filter((product) => {
-            return product.id !== itemId;
+            return product.id != itemId;
         });
 
         console.log(`Data after deleted: ${JSON.stringify(data)}`);
@@ -151,7 +145,7 @@ export default class BSTMain extends React.Component {
         return (
             <div>
                 <CustomModal.ProductAddModal handleAddAction={this.handleAddAction} />
-                <BSTExtend
+                <CRUDTable
                     handleDeleteAction={this.handleDeleteAction}
                     handleEditAction={this.handleEditAction}
                     onFilterChange={this.onFilterChange.bind(this)}

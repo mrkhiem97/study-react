@@ -8,7 +8,7 @@ const BootstrapTable = ReactBST.BootstrapTable;
 const TableHeaderColumn = ReactBST.TableHeaderColumn;
 
 /* BST Table */
-class BSTExtend extends React.Component {
+export default class CRUDTable extends React.Component {
 
     // View column
     createViewColumn = (cell, row, formatExtraData) => {
@@ -26,7 +26,6 @@ class BSTExtend extends React.Component {
             return product.id === row.id;
         });
 
-        console.log(`Find product id ${row.id} + Data: ${JSON.stringify(products)}`);
         return (
             <CustomModal.ProductEditModal product={products[0]} handleEditAction={this.props.handleEditAction} />
         );
@@ -34,9 +33,12 @@ class BSTExtend extends React.Component {
 
     // Delete column
     createDeleteColumn = (cell, row, formatExtraData) => {
-        console.debug(`rows: ${JSON.stringify(row)}`);
+        const products = this.props.data.filter((product) => {
+            return product.id === row.id;
+        });
+
         return (
-            <CustomModal.ProductDeleteModal product={row} handleDeleteAction={this.props.handleDeleteAction} />
+            <CustomModal.ProductDeleteModal product={products[0]} handleDeleteAction={this.props.handleDeleteAction} />
         );
     }
 
@@ -46,7 +48,7 @@ class BSTExtend extends React.Component {
         };
 
         return (
-            <BootstrapTable data={this.props.data} remote={true} options={options}>
+            <BootstrapTable data={this.props.data} remote={true} options={options} striped>
                 <TableHeaderColumn row="0" rowSpan="2" dataField="id" isKey={true}>Product ID</TableHeaderColumn>
                 <TableHeaderColumn row="0" rowSpan="2" dataField="name" editable={{ validator: BSTValidatorHelper.validatateProductName }}
                     filter={{ type: 'TextFilter' }}>Product Name</TableHeaderColumn>
@@ -61,16 +63,13 @@ class BSTExtend extends React.Component {
                 <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_VIEW} dataFormat={this.createViewColumn}>
                     View
                 </TableHeaderColumn>
-                <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_EDIT} dataFormat={this.createEditColumn}>
+                <TableHeaderColumn row="1" width="65" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_EDIT} dataFormat={this.createEditColumn}>
                     Edit
                 </TableHeaderColumn>
-                <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_DELETE} dataFormat={this.createDeleteColumn}>
+                <TableHeaderColumn row="1" width="75" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_DELETE} dataFormat={this.createDeleteColumn}>
                     Delete
                 </TableHeaderColumn>
             </BootstrapTable >
         );
     }
 }
-
-
-export default BSTExtend;

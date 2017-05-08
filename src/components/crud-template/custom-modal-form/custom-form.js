@@ -1,5 +1,5 @@
 import React from 'react';
-import InputControl from './custom-form-control';
+import InputControl from './custom-input-control';
 
 export default class ProductFormModal extends React.Component {
     constructor(props) {
@@ -66,9 +66,9 @@ export default class ProductFormModal extends React.Component {
 
             return (
                 <form>
-                    <InputControl data={this.formOption["id"].data} option={this.formOption["id"].option} />
-                    <InputControl data={this.formOption["name"].data} option={this.formOption["name"].option} />
-                    <InputControl data={this.formOption["price"].data} option={this.formOption["price"].option} />
+                    <InputControl ref={(thisNode) => { this.formOption["id"].node = thisNode }} data={this.formOption["id"].data} option={this.formOption["id"].option} />
+                    <InputControl ref={(thisNode) => { this.formOption["name"].node = thisNode }} data={this.formOption["name"].data} option={this.formOption["name"].option} />
+                    <InputControl ref={(thisNode) => { this.formOption["price"].node = thisNode }} data={this.formOption["price"].data} option={this.formOption["price"].option} />
                 </form>
             );
         }

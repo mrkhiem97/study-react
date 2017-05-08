@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import BSTMain from './components/BSTMain'
+import CRUDTableTemplate from './components/crud-template/CRUDTableTemplate';
 
 
 import logo from './logo.svg';
@@ -27,7 +27,7 @@ class App extends Component {
 
         <div className="App-body">
           <div className="col-md-12">
-            <BSTMain />
+            <CRUDTableTemplate />
           </div>
         </div>
 
