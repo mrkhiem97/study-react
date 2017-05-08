@@ -75,6 +75,7 @@ class CustomInsertModal extends React.Component {
     }
 }
 
+/* BST Table */
 class BSTExtend extends React.Component {
     createCustomModal = (onModalClose, onSave, columns, validateState, ignoreEditable) => {
         const attr = {
@@ -88,15 +89,23 @@ class BSTExtend extends React.Component {
 
     // View column
     createViewColumn = (cell, row, formatExtraData) => {
+        const products = this.props.data.filter((product) => {
+            return product.id === row.id;
+        });
         return (
-            <CustomModal.ProductDetailModal itemId={row.id} action={this.props.handleEditAction} />
+            <CustomModal.ProductDetailModal product={products[0]} />
         );
     }
 
     // Edit column
     createEditColumn = (cell, row, formatExtraData) => {
+        const products = this.props.data.filter((product) => {
+            return product.id === row.id;
+        });
+
+        console.log(`Find product id ${row.id} + Data: ${JSON.stringify(products)}`);
         return (
-            <CustomModal.ProductEditModal itemId={row.id} action={this.props.handleEditAction} />
+            <CustomModal.ProductEditModal product={products[0]} handleEditAction={this.props.handleEditAction} />
         );
     }
 
@@ -104,7 +113,7 @@ class BSTExtend extends React.Component {
     createDeleteColumn = (cell, row, formatExtraData) => {
         console.debug(`rows: ${JSON.stringify(row)}`);
         return (
-            <CustomModal.ProductDeleteModal itemId={row.id} action={this.props.handleDeleteAction} />
+            <CustomModal.ProductDeleteModal product={row} handleDeleteAction={this.props.handleDeleteAction} />
         );
     }
 
@@ -130,7 +139,7 @@ class BSTExtend extends React.Component {
                 <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_VIEW} dataFormat={this.createViewColumn}>
                     View
                 </TableHeaderColumn>
-                <TableHeaderColumn row="1" width="60" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_EDIT} dataFormat={this.createEditColumn}>
+                <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_EDIT} dataFormat={this.createEditColumn}>
                     Edit
                 </TableHeaderColumn>
                 <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_DELETE} dataFormat={this.createDeleteColumn}>

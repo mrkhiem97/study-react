@@ -3,6 +3,7 @@ import * as RB from 'react-bootstrap';
 import * as CustomModal from './custom-modal-form/custom-modal';
 import BSTExtend from './BSTExtend.js';
 
+/* Main table */
 export default class BSTMain extends React.Component {
     constructor(props) {
         super(props);
@@ -66,7 +67,8 @@ export default class BSTMain extends React.Component {
         return true;
     }
 
-    onFilterChange(filterObj) {
+    // Handle when table filter changed
+    onFilterChange = (filterObj) => {
         if (Object.keys(filterObj).length === 0) {
             this.setState({
                 data: this.products
@@ -108,25 +110,53 @@ export default class BSTMain extends React.Component {
         });
     }
 
-    // Click delete button
-    handleDeleteBtnClick = (itemId) => {
-        console.log(`Delete ${itemId}`);
-        const data = this.products.filter((product) => {
+    // Handle add new item
+    handleAddAction = (product) => {
+        console.log(`Data to be added: ${JSON.stringify(product)}`);
+        this.setState((state) => {
+            state.data = state.data.concat([product]);
+            return state;
+        });
+    }
+
+    // Handle edit item
+    handleEditAction = (product) => {
+        console.log(`Data to be edited: ${JSON.stringify(product)}`);
+        var tempData = this.state.data.slice();
+
+        tempData.forEach((item) => {
+            if (item.id === product.id) {
+                Object.assign(item, product);
+                return;
+            }
+        });
+
+        this.setState({ data: tempData });
+    }
+
+    // Handle delete item
+    handleDeleteAction = (itemId) => {
+        console.log(`Delete item id: ${itemId}`);
+        const data = this.state.data.filter((product) => {
             return product.id != itemId;
         });
 
-        this.products = data;
-        console.log(`Data size: ${data.length}`);
+        console.log(`Data after deleted: ${JSON.stringify(data)}`);
         this.setState({
             data: data
         });
     }
 
+    // Render
     render() {
         return (
             <div>
-                <CustomModal.ModalProduct />
-                <BSTExtend handleDeleteBtnClick={this.handleDeleteBtnClick} onFilterChange={this.onFilterChange.bind(this)} { ...this.state } />
+                <CustomModal.ProductAddModal handleAddAction={this.handleAddAction} />
+                <BSTExtend
+                    handleDeleteAction={this.handleDeleteAction}
+                    handleEditAction={this.handleEditAction}
+                    onFilterChange={this.onFilterChange.bind(this)}
+                    { ...this.state } />
             </div>
         );
     }

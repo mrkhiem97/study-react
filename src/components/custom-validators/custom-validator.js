@@ -7,10 +7,10 @@ export class BSTValidatorHelper {
         const isMatch = REGEX.test(value);
 
         if (!isMatch) {
-            return { status: 'error', message: 'Product id is not valid' };
+            return { status: 'error', message: 'Product id is not valid', valid: false };
         }
 
-        return { status: 'success', message: '' };
+        return { status: 'success', message: '', valid: true };
     }
 
     // Validate product name
@@ -19,10 +19,10 @@ export class BSTValidatorHelper {
         const isMatch = REGEX.test(value);
 
         if (!isMatch) {
-            return { status: 'error', message: 'Product name is not valid' };
+            return { status: 'error', message: 'Product name is not valid', valid: false };
         }
 
-        return { status: 'success', message: '' };
+        return { status: 'success', message: '', valid: true };
     }
 
     // Validate product price
@@ -31,9 +31,21 @@ export class BSTValidatorHelper {
         const isMatch = REGEX.test(value);
 
         if (!isMatch) {
-            return { status: 'error', message: 'Product price is not valid' };
+            return { status: 'error', message: 'Product price is not valid', valid: false };
         }
 
-        return { status: 'success', message: '' };
+        return { status: 'success', message: '', valid: true };
+    }
+
+    // Validate product price
+    static validatateOther = (value) => {
+        const REGEX = /^\d+(\.\d+)?$/;
+        const isMatch = REGEX.test(value);
+
+        if (!isMatch) {
+            return { status: 'error', message: 'Other is not valid', valid: false };
+        }
+
+        return { status: 'success', message: '', valid: true };
     }
 }

@@ -1,30 +1,59 @@
 import React from 'react';
 import * as RB from 'react-bootstrap';
 import * as CustomBSTComponents from '../custom-table-components/custom-table-components.js';
-import ProductFormModal from './custom-form.js'
+import ProductForm from './custom-form.js'
 
 const Button = RB.Button;
 const Modal = RB.Modal;
 const ButtonToolbar = RB.ButtonToolbar;
 
-export class ModalProduct extends React.Component {
+export class ProductAddModal extends React.Component {
     constructor(props) {
         super(props);
+
+        this.product = {
+            id: '',
+            name: '',
+            price: 0
+        };
+
         this.state = {
-            show: false
+            show: false,
+            product: this.product
         };
     }
 
     componentDidMount = () => {
-        this.setState({ show: false });
+        const product = {};
+        Object.assign(product, this.product);
+        this.setState({
+            show: false,
+            product: product
+        });
     }
 
     showModal = () => {
-        this.setState({ show: true });
+        const product = {};
+        Object.assign(product, this.product);
+        this.setState({
+            show: true,
+            product: product
+        });
     }
 
     hideModal = () => {
-        this.setState({ show: false });
+        const product = {};
+        Object.assign(product, this.product);
+        this.setState({
+            show: false,
+            product: product
+        });
+    }
+
+    handleAddAction = () => {
+        // const product = .....
+        this.props.handleAddAction(this.state.product);
+        this.hideModal();
     }
 
     render = () => {
@@ -38,12 +67,12 @@ export class ModalProduct extends React.Component {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductFormModal />
+                        <ProductForm product={this.state.product} action="create" />
                     </Modal.Body>
 
                     <Modal.Footer>
                         <Button onClick={this.hideModal}>Cancel</Button>
-                        <Button bsStyle="primary" onClick={this.hideModal}>Save changes</Button>
+                        <Button bsStyle="primary" onClick={this.handleAddAction}>Save changes</Button>
                     </Modal.Footer>
                 </Modal>
             </ButtonToolbar>
@@ -82,7 +111,7 @@ export class ProductDetailModal extends React.Component {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductFormModal />
+                        <ProductForm product={this.props.product} action="read" />
                     </Modal.Body>
 
                     <Modal.Footer>
@@ -98,6 +127,7 @@ export class ProductDetailModal extends React.Component {
 export class ProductEditModal extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
             show: false
         };
@@ -115,6 +145,12 @@ export class ProductEditModal extends React.Component {
         this.setState({ show: false });
     }
 
+    handleEditAction = () => {
+        // const product = .....
+        this.props.handleEditAction(this.props.product);
+        this.hideModal();
+    }
+
     render = () => {
         return (
             <ButtonToolbar>
@@ -126,12 +162,12 @@ export class ProductEditModal extends React.Component {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductFormModal />
+                        <ProductForm product={this.props.product} action="update" />
                     </Modal.Body>
 
                     <Modal.Footer>
                         <Button onClick={this.hideModal}>Cancel</Button>
-                        <Button bsStyle="primary" onClick={this.hideModal}>Save changes</Button>
+                        <Button bsStyle="primary" onClick={this.handleEditAction}>Save changes</Button>
                     </Modal.Footer>
                 </Modal>
             </ButtonToolbar>
@@ -160,6 +196,12 @@ export class ProductDeleteModal extends React.Component {
         this.setState({ show: false });
     }
 
+    handleDeleteAction = () => {
+        // const product = .....
+        this.props.handleDeleteAction(this.props.product.id);
+        this.hideModal();
+    }
+
     render = () => {
         return (
             <ButtonToolbar>
@@ -171,12 +213,12 @@ export class ProductDeleteModal extends React.Component {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductFormModal />
+                        <ProductForm product={this.props.product} action="delete" />
                     </Modal.Body>
 
                     <Modal.Footer>
                         <Button onClick={this.hideModal}>Cancel</Button>
-                        <Button bsStyle="danger" onClick={this.hideModal}>Delete</Button>
+                        <Button bsStyle="danger" onClick={this.handleDeleteAction}>Delete</Button>
                     </Modal.Footer>
                 </Modal>
             </ButtonToolbar>

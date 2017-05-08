@@ -1,7 +1,8 @@
 import React from 'react';
 
 import ReactDOM from 'react-dom';
-import { BSTValidatorHelper } from '../custom-validators/custom-validator.js'
+import { BSTValidatorHelper } from '../custom-validators/custom-validator.js';
+import InputControl from './custom-form-control';
 
 import * as RB from 'react-bootstrap';
 const Button = RB.Button;
@@ -14,28 +15,59 @@ const HelpBlock = RB.HelpBlock;
 export default class ProductFormModal extends React.Component {
     constructor(props) {
         super(props);
-        this.product = {
-            id: '',
-            name: '',
-            price: 0
-        };
+
+        // Form properties
+
+        // 1. Action (create | read | update | delete)
+        this.action = this.props.action;
+
+        // 2. Validate Message Table
         this.validateMsgTable = {
             id: { status: null, message: '' },
             name: { status: null, message: '' },
             price: { status: null, message: '' }
         };
 
+        // 3. Default null state
+        this.product = {};
+        this.defaultFormData = {
+            id: '',
+            name: '',
+            price: 0
+        };
+
+        // 4. Base on action, decide the initial state of form data
+        if (this.action === 'create') {
+            console.log(`Form-Modal: action = create`);
+            Object.assign(this.product, this.defaultFormData);
+        } else if (this.action === 'update') {
+            console.log(`Form-Modal: action = update`);
+            Object.assign(this.product, this.props.product);
+        } else if (this.action === 'read') {
+            console.log(`Form-Modal: action = read`);
+            Object.assign(this.product, this.props.product);
+        } else if (this.action === 'delete') {
+            console.log(`Form-Modal: action = delete`);
+            Object.assign(this.product, this.props.product);
+        } else {
+            console.error(`Form-Modal: Action is invalid. Please choose either (create | read | update | delete)`);
+            Object.assign(this.product, this.defaultFormData);
+        }
+
+
         // Set initial state
         this.state = {
-            product: this.product
+            formData: this.product
         };
     }
 
+    // Handle input validation when data on input field changed
     getValidationState = (field) => {
         console.log(`Get validate msg for field ${field}: ${this.validateMsgTable[field].status}`);
         return this.validateMsgTable[field].status;
     }
 
+    // Handle when form data changed
     handleChange = (e) => {
         for (let field in this.product) {
             // let item = this.product[field];
@@ -57,34 +89,58 @@ export default class ProductFormModal extends React.Component {
             }
         }
 
+        // Copy property from current state to outside 
+        Object.assign(this.props.product, this.product);
         // Set state
-        this.setState({ product: this.product });
+        this.setState({ formData: this.product });
+    }
+
+    checkAction = () => {
+        if (this.action === 'create') {
+            // Find status
+            return false;
+        } else { this.action === 'update' } {
+            return true;
+        }
     }
 
     render() {
-        return (
-            <form>
-                <FormGroup controlId="controlProductId" validationState={this.getValidationState("id")}>
-                    <ControlLabel>Product Id</ControlLabel>
-                    <FormControl type="text" value={this.state.product.id} placeholder="Product Id" ref="id" onChange={this.handleChange} />
-                    <FormControl.Feedback />
-                    <HelpBlock>{this.validateMsgTable["id"].message}</HelpBlock>
-                </FormGroup>
+        if (this.action === 'delete') {
+            return (
+                <div></div>
+            );
+        } else {
+            console.log(`Render action: ${this.action}`);
 
-                <FormGroup controlId="controlProductName" validationState={this.getValidationState("name")}>
-                    <ControlLabel>Product Name</ControlLabel>
-                    <FormControl type="text" value={this.state.value} placeholder="Enter text" ref="name" onChange={this.handleChange} />
-                    <FormControl.Feedback />
-                    <HelpBlock>{this.validateMsgTable["name"].message}</HelpBlock>
-                </FormGroup>
+            return (
+                <form>
+                    <FormGroup controlId="controlProductId" validationState={this.getValidationState("id")}>
+                        <ControlLabel>Product Id</ControlLabel>
+                        <FormControl type="text" disabled={this.checkAction()} value={this.state.formData.id} placeholder="Product Id" ref="id" onChange={this.handleChange} />
+                        <FormControl.Feedback />
+                        <HelpBlock>{this.validateMsgTable["id"].message}</HelpBlock>
+                    </FormGroup>
 
-                <FormGroup controlId="controlProductPrice" validationState={this.getValidationState("price")}>
-                    <ControlLabel>Product price</ControlLabel>
-                    <FormControl type="text" value={this.state.value} placeholder="Enter text" ref="price" onChange={this.handleChange} />
-                    <FormControl.Feedback />
-                    <HelpBlock>{this.validateMsgTable["price"].message}</HelpBlock>
-                </FormGroup>
-            </form>
-        );
+                    <FormGroup controlId="controlProductName" validationState={this.getValidationState("name")}>
+                        <ControlLabel>Product Name</ControlLabel>
+                        <FormControl type="text" value={this.state.formData.name} placeholder="Product name" ref="name" validator={BSTValidatorHelper.validatateProductName} onChange={this.handleChange} />
+                        <FormControl.Feedback />
+                        <HelpBlock>{this.validateMsgTable["name"].message}</HelpBlock>
+                    </FormGroup>
+
+                    <FormGroup controlId="controlProductPrice" validationState={this.getValidationState("price")}>
+                        <ControlLabel>Product price</ControlLabel>
+                        <FormControl type="text" value={this.state.formData.price} placeholder="Product price" ref="price" onChange={this.handleChange} />
+                        <FormControl.Feedback />
+                        <HelpBlock>{this.validateMsgTable["price"].message}</HelpBlock>
+                    </FormGroup>
+
+                    <InputControl
+                        data={{ controlId: 'testControl', controlType: 'text', label: 'We are going to die', field: 'birthday', value: 'mrkhiem97@gmail.com', isValid: true, isDisable: false }}
+                        options={{ validator: BSTValidatorHelper.validatateOther }}
+                    />
+                </form>
+            );
+        }
     }
 }
