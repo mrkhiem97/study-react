@@ -1,5 +1,5 @@
 import React from 'react';
-import * as CustomModal from './custom-modal-form/custom-modal';
+import {CreateJourneyModal} from './modal-form/crud-modal';
 import StoreHelper from './helpers/StoreHelper';
 import CRUDTable from './CRUDTable';
 
@@ -144,7 +144,7 @@ export default class CRUDTableTemplate extends React.Component {
     render() {
         return (
             <div>
-                <CustomModal.JourneyAddModal handleAddAction={this.handleAddAction} />
+                <CreateJourneyModal handleAddAction={this.handleAddAction} />
                 <CRUDTable
                     handleDeleteAction={this.handleDeleteAction}
                     handleEditAction={this.handleEditAction}

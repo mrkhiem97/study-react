@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ControlLabel, FormControl, FormGroup, HelpBlock, Form, Button, Col } from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup, HelpBlock, Form, Col } from 'react-bootstrap';
 import DateTimeField from 'react-bootstrap-datetimepicker';
+import moment from 'moment';
+
 
 export default class FormCRUDJourney extends React.Component {
     constructor(props) {
@@ -13,7 +15,6 @@ export default class FormCRUDJourney extends React.Component {
         this.action = this.props.action;
 
         // 2. Default null state
-        this.journey = {};
         this.defaultFormData = {
             id: '',
             journeyName: '',
@@ -42,73 +43,62 @@ export default class FormCRUDJourney extends React.Component {
             Object.assign(this.journey, this.defaultFormData);
         }
 
-        // Default validate status
-        this.controlStatus = {};
-
         this.state = {
-            formValue: {
+            formFields: {
+                id: '',
                 journeyName: '',
-                estimateStartTime: '',
-                estimateEndTime: ''
+                estimateStartTime: `${moment().valueOf()}`,
+                estimateEndTime: `${moment().valueOf()}`,
             }
         };
     }
 
-    // Handle when form data changed
-    updateControlValue = (field, controlValue, isControlValueValid) => {
-        this.journey[field] = controlValue;
-
-        // Copy property from current state to outside 
-        Object.assign(this.props.product, this.journey);
-    }
-
-    checkAction = () => {
-        if (this.action === 'create') {
-            // Find status
-            return false;
-        }
-        return true;
-    }
-
     // Handle when input data changed
     onChange = (e, field) => {
+
+        let controlValue = '';
+        if (typeof (e) === 'string') {
+            controlValue = e;
+        } else {
+            controlValue = e.target.value;
+        }
+        console.log(`onChange: ${typeof (e)} - Value: ${controlValue}`);
         // { status: 'success', message: '', valid: true }
-        this.formOption[field].data.value = e.target.value;
+        this.formOption[field].data.value = controlValue;
 
         // Do validation base on interface validator
-        this.formOption[field].data.validateStatus = this.formOption[field].option.validator(e.target.value);
+        this.formOption[field].data.validateStatus = this.formOption[field].option.validator(controlValue);
 
-        const formValue = Object.assign({}, this.state.formValue);
-        formValue[field] = e.target.value;
+        const formFields = Object.assign({}, this.state.formFields);
+        formFields[field] = controlValue;
         this.setState({
-            formValue: formValue
+            formFields: formFields
         });
     }
 
     // Do validation
     doValidate = () => {
         let isFormValid = true;
-        for (const field in this.state.formValue) {
+        for (const field in this.state.formFields) {
             // Do validation base on interface validator
-            this.formOption[field].data.validateStatus = this.formOption[field].option.validator(this.state.formValue[field]);
-            isFormValid = isFormValid & this.formOption[field].data.validateStatus.valid;
+            console.log(`Trigger validate on [${field}]: ${this.state.formFields[field]}`);
+            this.formOption[field].data.validateStatus = this.formOption[field].option.validator(this.state.formFields[field]);
+            isFormValid &= this.formOption[field].data.validateStatus.valid;
         }
 
         // Re render
         this.setState({
-            formValue: this.state.formValue
+            formFields: this.state.formFields
         });
 
         return isFormValid;
     }
 
     getValidationState = (field) => {
-        console.log(`Status: ${this.formOption[field].data.validateStatus.status}`);
         return this.formOption[field].data.validateStatus.status;
     }
 
     getValidationMessage = (field) => {
-        console.log(`Status: ${this.formOption[field].data.validateStatus.message}`);
         return this.formOption[field].data.validateStatus.message;
     }
 
@@ -118,8 +108,6 @@ export default class FormCRUDJourney extends React.Component {
                 <div></div>
             );
         } else {
-            console.log(`Render action: ${this.action}`);
-
             return (
                 <div>
                     <Form horizontal>
@@ -129,9 +117,9 @@ export default class FormCRUDJourney extends React.Component {
                             </Col>
                             <Col sm={10}>
                                 <FormControl
-                                    type={this.formOption['journeyName'].data.controlType}
+                                    type='text'
                                     disabled={this.formOption['journeyName'].data.isDisable}
-                                    value={this.state.formValue.journeyName}
+                                    value={this.state.formFields.journeyName}
                                     placeholder={this.props.formOption['journeyName'].placeHolder}
                                     onChange={(e) => this.onChange(e, this.formOption['journeyName'].data.field)} />
                                 <FormControl.Feedback />
@@ -144,13 +132,11 @@ export default class FormCRUDJourney extends React.Component {
                                 {this.formOption['estimateStartTime'].data.label}
                             </Col>
                             <Col sm={10}>
-                                <FormControl
-                                    type={this.formOption['estimateStartTime'].data.controlType}
-                                    disabled={this.formOption['estimateStartTime'].data.isDisable}
-                                    value={this.state.formValue.estimateStartTime}
-                                    placeholder={this.props.formOption['estimateStartTime'].placeHolder}
-                                    onChange={(e) => this.onChange(e, this.formOption['estimateStartTime'].data.field)} />
-                                <FormControl.Feedback />
+                                <DateTimeField
+                                    inputFormat='YYYY/MM/DD - HH:mm:ss A'
+                                    dateTime={this.state.formFields.estimateStartTime}
+                                    onChange={(e) => this.onChange(e, this.formOption['estimateStartTime'].data.field)}
+                                />
                                 <HelpBlock>{this.getValidationMessage('estimateStartTime')}</HelpBlock>
                             </Col>
                         </FormGroup>
@@ -160,18 +146,13 @@ export default class FormCRUDJourney extends React.Component {
                                 {this.formOption['estimateEndTime'].data.label}
                             </Col>
                             <Col sm={10}>
-                                <FormControl
-                                    type={this.formOption['estimateEndTime'].data.controlType}
-                                    disabled={this.formOption['estimateEndTime'].data.isDisable}
-                                    value={this.state.formValue.estimateEndTime}
-                                    placeholder={this.props.formOption['estimateEndTime'].placeHolder}
-                                    onChange={(e) => this.onChange(e, this.formOption['estimateEndTime'].data.field)} />
-                                <FormControl.Feedback />
+                                <DateTimeField
+                                    inputFormat='YYYY/MM/DD - HH:mm:ss A'
+                                    dateTime={this.state.formFields.estimateEndTime}
+                                    onChange={(e) => this.onChange(e, this.formOption['estimateEndTime'].data.field)}
+                                />
                                 <HelpBlock>{this.getValidationMessage('estimateEndTime')}</HelpBlock>
                             </Col>
-                        </FormGroup>
-                        <FormGroup>
-                            <DateTimeField />
                         </FormGroup>
                     </Form>
                 </div>
