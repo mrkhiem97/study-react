@@ -1,20 +1,10 @@
 import React, { Component } from 'react';
 import CRUDTableTemplate from './components/crud-template/CRUDTableTemplate';
 
-
 import logo from './logo.svg';
 import './App.css';
 
 /* eslint-disable */
-var products = [{
-  id: 1,
-  name: "Product1",
-  price: 120
-}, {
-  id: 2,
-  name: "Product2",
-  price: 80
-}];
 
 class App extends Component {
   render() {

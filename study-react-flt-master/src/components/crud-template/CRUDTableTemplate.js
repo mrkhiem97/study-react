@@ -144,7 +144,7 @@ export default class CRUDTableTemplate extends React.Component {
     render() {
         return (
             <div>
-                <CustomModal.ProductAddModal handleAddAction={this.handleAddAction} />
+                <CustomModal.JourneyAddModal handleAddAction={this.handleAddAction} />
                 <CRUDTable
                     handleDeleteAction={this.handleDeleteAction}
                     handleEditAction={this.handleEditAction}

@@ -1,11 +1,175 @@
 import React from 'react';
 import * as RB from 'react-bootstrap';
 import { BSTValidatorHelper } from '../custom-validators/custom-validator.js';
-import ProductForm from './custom-form.js'
+import ProductFormModal from './custom-form.js';
+import FormCRUDJourney from '../form/FormCRUDJourney';
 
 const Button = RB.Button;
 const Modal = RB.Modal;
 const ButtonToolbar = RB.ButtonToolbar;
+
+var createFormOption1 = (id, journeyName, estimateStartTime, estimateEndTime) => {
+    // JourneyId
+    const dataJourneyId = {
+        controlId: 'controlJourneyId',
+        controlType: 'text',
+        label: 'Journey Id',
+        field: 'id',
+        value: id,
+        isValid: true,
+        isDisable: false
+    };
+    const optionJourneyId = {
+        validator: BSTValidatorHelper.validatateJourneyId,
+    };
+
+    // JourneyName
+    const dataJourneyName = {
+        controlId: 'controlJourneyName',
+        label: 'Journey Name',
+        field: 'journeyName',
+        value: journeyName,
+        validateStatus: {},
+        isValid: true,
+        isDisable: false
+    }
+    const optionJourneyName = {
+        validator: BSTValidatorHelper.validatateJourneyName,
+    }
+
+    // Journey Estimate Start time
+    const dataJourneyEstimateStartTime = {
+        controlId: 'controlJourneyEstimateStartTime',
+        label: 'Estimate start time',
+        field: 'estimateStartTime',
+        value: estimateStartTime,
+        validateStatus: {},
+        isValid: true,
+        isDisable: false
+    };
+    const optionJourneyEstimateStartTime = {
+        validator: BSTValidatorHelper.validatateJourneyPrice,
+    }
+
+    // Journey Estimate End time
+    const dataJourneyEstimateEndTime = {
+        controlId: 'controlJourneyEstimateEndTime',
+        label: 'Estimate end time',
+        field: 'estimateEndTime',
+        value: estimateEndTime,
+        validateStatus: {},
+        isValid: true,
+        isDisable: false
+    };
+    const optionJourneyEstimateEndTime = {
+        validator: BSTValidatorHelper.validatateJourneyPrice,
+    }
+
+    const formOption = {
+        id: { data: dataJourneyId, option: optionJourneyId, node: null },
+        journeyName: { data: dataJourneyName, option: optionJourneyName, node: null },
+        estimateStartTime: { data: dataJourneyEstimateStartTime, option: optionJourneyEstimateStartTime, node: null },
+        estimateEndTime: { data: dataJourneyEstimateEndTime, option: optionJourneyEstimateEndTime, node: null },
+    };
+    return formOption;
+}
+
+
+export class JourneyAddModal extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.defaultJourneyData = {
+            id: '',
+            journeyName: '',
+            estimateStartTime: '',
+            estimateEndTime: ''
+        };
+
+        this.state = {
+            show: false,
+            journey: this.defaultJourneyData
+        };
+
+        this.formOption = createFormOption1(this.state.journey.id, this.state.journey.journeyName, this.state.journey.estimateStartTime, this.state.journey.estimateEndTime);
+    }
+
+    componentDidMount = () => {
+        const journey = {};
+        Object.assign(journey, this.defaultJourneyData);
+        this.setState({
+            show: false,
+            journey: journey
+        });
+    }
+
+    showModal = () => {
+        const journey = {};
+        Object.assign(journey, this.defaultJourneyData);
+        this.setState({
+            show: true,
+            journey: journey
+        });
+    }
+
+    hideModal = () => {
+        const journey = {};
+
+        // Reset form input value when closed
+        for (const field in this.formOption) {
+            this.formOption[field].data.value = '';
+        }
+
+        Object.assign(journey, this.defaultJourneyData);
+        this.setState({
+            show: false,
+            journey: journey
+        });
+    }
+
+    handleAddAction = () => {
+        // Do validate again
+        // Trigger valiadte on each child component when click save button
+        if (!this.formNode.doValidate()){
+            return;
+        }
+        
+
+        const journey = {};
+        // If there is one input field not validated, save action will be aborted
+
+        for (const field in this.formOption) {
+            journey[field] = this.formOption[field].data.value;
+        }
+
+        // Add Journey
+        this.props.handleAddAction(journey);
+        this.hideModal();
+    }
+
+    render = () => {
+        return (
+            <ButtonToolbar>
+                <Button bsStyle="success" bsSize="small" onClick={this.showModal}>✙ New Journey</Button>
+
+                <Modal {...this.props} bsSize="large" show={this.state.show} onHide={this.hideModal} dialogClassName="custom-modal">
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-lg">Add new Journeys</Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        <FormCRUDJourney ref={thisNode => {this.formNode = thisNode}} journey={this.state.journey} formOption={this.formOption} action="create" />
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <Button onClick={this.hideModal}>Cancel</Button>
+                        <Button bsStyle="primary" onClick={this.handleAddAction}>Save changes</Button>
+                    </Modal.Footer>
+                </Modal>
+            </ButtonToolbar>
+        );
+    }
+}
 
 var createFormOption = (id, name, price) => {
     // ProductId
@@ -59,107 +223,6 @@ var createFormOption = (id, name, price) => {
     };
     return formOption;
 }
-
-
-export class ProductAddModal extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.defaultProductData = {
-            id: '',
-            name: '',
-            price: 0
-        };
-
-        this.state = {
-            show: false,
-            product: this.defaultProductData
-        };
-
-        this.formOption = createFormOption(this.state.product.id, this.state.product.name, this.state.product.price);
-    }
-
-    componentDidMount = () => {
-        const product = {};
-        Object.assign(product, this.defaultProductData);
-        this.setState({
-            show: false,
-            product: product
-        });
-    }
-
-    showModal = () => {
-        const product = {};
-        Object.assign(product, this.defaultProductData);
-        this.setState({
-            show: true,
-            product: product
-        });
-    }
-
-    hideModal = () => {
-        const product = {};
-
-        // Reset form input value when closed
-        this.formOption["id"].data.value = '';
-        this.formOption["name"].data.value = '';
-        this.formOption["price"].data.value = '';
-
-        Object.assign(product, this.defaultProductData);
-        this.setState({
-            show: false,
-            product: product
-        });
-    }
-
-    handleAddAction = () => {
-        // Do validate again
-        // Trigger valiadte on each child component when click save button
-        for (const field in this.formOption) {
-            // This cause the UI validation to be updated
-            this.formOption[field].node.handleChange();
-        }
-
-
-        const product = {};
-        // If there is one input field not validated, save action will be aborted
-        for (const field in this.formOption) {
-            if (!this.formOption[field].data.isValid) {
-                return;
-            }
-
-            product[field] = this.formOption[field].data.value;
-        }
-
-        // Add product
-        this.props.handleAddAction(product);
-        this.hideModal();
-    }
-
-    render = () => {
-        return (
-            <ButtonToolbar>
-                <Button bsStyle="success" bsSize="small" onClick={this.showModal}>✙ New</Button>
-
-                <Modal {...this.props} show={this.state.show} onHide={this.hideModal} dialogClassName="custom-modal">
-                    <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-lg">Add new products</Modal.Title>
-                    </Modal.Header>
-
-                    <Modal.Body>
-                        <ProductForm product={this.state.product} formOption={this.formOption} action="create" />
-                    </Modal.Body>
-
-                    <Modal.Footer>
-                        <Button onClick={this.hideModal}>Cancel</Button>
-                        <Button bsStyle="primary" onClick={this.handleAddAction}>Save changes</Button>
-                    </Modal.Footer>
-                </Modal>
-            </ButtonToolbar>
-        );
-    }
-}
-
 export class ProductDetailModal extends React.Component {
     constructor(props) {
         super(props);
@@ -188,13 +251,13 @@ export class ProductDetailModal extends React.Component {
             <ButtonToolbar>
                 <Button bsStyle="info" bsSize="small" onClick={this.showModal}>Detail</Button>
 
-                <Modal {...this.props} show={this.state.show} onHide={this.hideModal} dialogClassName="custom-modal">
+                <Modal {...this.props}  show={this.state.show} onHide={this.hideModal} dialogClassName="custom-modal">
                     <Modal.Header closeButton>
                         <Modal.Title id="contained-modal-title-lg">Product detail</Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductForm product={this.props.product} formOption={this.formOption} action="read" />
+                        <ProductFormModal product={this.props.product} formOption={this.formOption} action="read" />
                     </Modal.Body>
 
                     <Modal.Footer>
@@ -264,7 +327,7 @@ export class ProductEditModal extends React.Component {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductForm product={this.props.product} formOption={this.formOption} action="update" />
+                        <ProductFormModal product={this.props.product} formOption={this.formOption} action="update" />
                     </Modal.Body>
 
                     <Modal.Footer>
@@ -314,7 +377,7 @@ export class ProductDeleteModal extends React.Component {
                     </Modal.Header>
 
                     <Modal.Body>
-                        <ProductForm product={this.props.product} action="delete" />
+                        <ProductFormModal product={this.props.product} action="delete" />
                     </Modal.Body>
 
                     <Modal.Footer>

@@ -8,7 +8,7 @@ const FormGroup = RB.FormGroup;
 const HelpBlock = RB.HelpBlock;
 
 
-export default class InputControl extends React.Component {
+export class TextInputControl extends React.Component {
     constructor(props) {
         super(props);
 
