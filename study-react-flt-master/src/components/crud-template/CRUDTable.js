@@ -1,8 +1,8 @@
 import React from 'react';
 import * as ReactBST from 'react-bootstrap-table';
 import * as CustomBSTComponents from './custom-table-components/custom-table-components.js';
-import * as CustomModal from './custom-modal-form/custom-modal';
-import { BSTValidatorHelper } from './custom-validators/custom-validator.js'
+import { DeleteJourneyModal, EditJourneyModal, ViewJourneyModal } from './modal-form/crud-modal'
+import moment from 'moment';
 
 const BootstrapTable = ReactBST.BootstrapTable;
 const TableHeaderColumn = ReactBST.TableHeaderColumn;
@@ -10,35 +10,40 @@ const TableHeaderColumn = ReactBST.TableHeaderColumn;
 /* BST Table */
 export default class CRUDTable extends React.Component {
 
+    dateFormatter = (cell, row) => {
+        return `${moment(cell).format('YYYY/MM/DD - HH:mm:ss A')}`;
+    }
+
     // View column
     createViewColumn = (cell, row, formatExtraData) => {
-        const products = this.props.data.filter((product) => {
-            return product.id === row.id;
+        const entities = this.props.data.filter((item) => {
+            return item.id === row.id;
         });
+
         return (
-            <CustomModal.ProductDetailModal product={products[0]} />
+            <ViewJourneyModal entity={entities[0]} />
         );
     }
 
     // Edit column
     createEditColumn = (cell, row, formatExtraData) => {
-        const products = this.props.data.filter((product) => {
-            return product.id === row.id;
+        const entities = this.props.data.filter((item) => {
+            return item.id === row.id;
         });
 
         return (
-            <CustomModal.ProductEditModal product={products[0]} handleEditAction={this.props.handleEditAction} />
+            <EditJourneyModal entity={entities[0]} handleEditAction={this.props.handleEditAction} />
         );
     }
 
     // Delete column
     createDeleteColumn = (cell, row, formatExtraData) => {
-        const products = this.props.data.filter((product) => {
-            return product.id === row.id;
+        const entities = this.props.data.filter((item) => {
+            return item.id === row.id;
         });
 
         return (
-            <CustomModal.ProductDeleteModal product={products[0]} handleDeleteAction={this.props.handleDeleteAction} />
+            <DeleteJourneyModal entity={entities[0]} handleDeleteAction={this.props.handleDeleteAction} />
         );
     }
 
@@ -49,16 +54,28 @@ export default class CRUDTable extends React.Component {
 
         return (
             <BootstrapTable data={this.props.data} remote={true} options={options} striped>
-                <TableHeaderColumn row="0" rowSpan="2" dataField="id" isKey={true}>Product ID</TableHeaderColumn>
-                <TableHeaderColumn row="0" rowSpan="2" dataField="name" editable={{ validator: BSTValidatorHelper.validatateProductName }}
-                    filter={{ type: 'TextFilter' }}>Product Name</TableHeaderColumn>
-                <TableHeaderColumn row="0" rowSpan="2" dataField="price"
+                <TableHeaderColumn row="0" rowSpan="2" dataField="id" isKey={true} width={100}>Journey ID</TableHeaderColumn>
+
+                <TableHeaderColumn row="0" rowSpan="2" dataField="journeyName" filter={{ type: 'TextFilter' }}>
+                    Journey name
+                </TableHeaderColumn>
+
+                <TableHeaderColumn row="0" rowSpan="2" dataField="estimateStartTime" dataFormat={this.dateFormatter}
                     filter={{
                         type: 'NumberFilter',
                         numberComparators: ['=', '>', '<=']
                     }}>
-                    Product Price
+                    Estimate end time
                 </TableHeaderColumn>
+
+                <TableHeaderColumn row="0" rowSpan="2" dataField="estimateEndTime" dataFormat={this.dateFormatter}
+                    filter={{
+                        type: 'NumberFilter',
+                        numberComparators: ['=', '>', '<=']
+                    }}>
+                    Estimate start time
+                </TableHeaderColumn>
+
                 <TableHeaderColumn row="0" colSpan="3" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION}>Actions</TableHeaderColumn>
                 <TableHeaderColumn row="1" width="70" dataAlign="center" hiddenOnInsert={true} dataField={CustomBSTComponents.BSTActionConstants.ACTION_VIEW} dataFormat={this.createViewColumn}>
                     View

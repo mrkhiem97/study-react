@@ -1,12 +1,49 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createStore } from 'redux';
 import { BSTValidatorHelper } from '../custom-validators/custom-validator';
 import { ControlLabel, FormControl, FormGroup, HelpBlock, Form, Col } from 'react-bootstrap';
 import DateTimeField from 'react-bootstrap-datetimepicker';
 
 
-const createFormState = (journey) => {
-    const formState = {
+function reducer(state, action) {
+    if (action.type === 'CHANGE_CONTROL_VALUE') {
+        // Create new state
+        const newState = {};
+        Object.assign(newState, state);
+
+        const formFieldManager = newState[action.field];
+        formFieldManager.data.value = action.value;
+
+        // Do validation base on interface validator
+        formFieldManager.data.validateStatus = formFieldManager.option.validator(action.value);
+
+        return newState;
+    } else if (action.type === 'FORCE_VALIDATE') {
+        const newState = {};
+        // Create new state
+        Object.assign(newState, state);
+        for (const field in state) {
+            if (field === 'isFormValidated') continue;
+
+            // Do validation base on interface validator
+            const formFieldManager = newState[field];
+            if (formFieldManager.hidden) continue;
+
+            formFieldManager.data.validateStatus = formFieldManager.option.validator(formFieldManager.data.value);
+            newState['isFormValidated'] &= formFieldManager.data.validateStatus.valid;
+        }
+
+        return newState;
+    } else if (action.type == 'CREATE_INITIAL_STATE') {
+        return action.initialState;
+    }
+
+    return state;
+}
+
+function createInitialState(journey) {
+    return {
+        isFormValidated: true,
         id: {
             hidden: true,
             data: {
@@ -53,8 +90,30 @@ const createFormState = (journey) => {
             }
         },
     };
+}
 
-    return formState;
+// Redux store declare
+const store = createStore(reducer);
+
+function createChangeControlValueAction(field, value) {
+    return {
+        type: 'CHANGE_CONTROL_VALUE',
+        field: field,
+        value: value
+    }
+}
+
+function createForceValidateAction() {
+    return {
+        type: 'FORCE_VALIDATE',
+    }
+}
+
+function createInitialStateAction(initialState) {
+    return {
+        type: 'CREATE_INITIAL_STATE',
+        initialState: initialState
+    }
 }
 
 /* Create Journey Form */
@@ -62,15 +121,8 @@ export default class FormCRUDJourney extends React.Component {
     constructor(props) {
         super(props);
 
-        // Form properties
-
         // 1. Action (create | read | update | delete)
         this.action = this.props.action;
-
-        // 2. Set initial state
-        this.state = {
-            formState: createFormState(this.props.journey)
-        };
 
         // 3. Base on action, decide the initial state of form data
         if (this.action === 'create') {
@@ -78,80 +130,62 @@ export default class FormCRUDJourney extends React.Component {
             // Object.assign(this.journey, this.defaultFormData);
         } else if (this.action === 'update') {
             console.log(`FormCRUDJourney: action = update`);
-            // Object.assign(this.journey, this.props.journey);
+            // Object.assign(this.journey, this.props.entity);
         } else if (this.action === 'read') {
             console.log(`FormCRUDJourney: action = read`);
-            // Object.assign(this.journey, this.props.journey);
+            // Object.assign(this.journey, this.props.entity);
         } else if (this.action === 'delete') {
             console.log(`FormCRUDJourney: action = delete`);
-            // Object.assign(this.journey, this.props.journey);
+            // Object.assign(this.journey, this.props.entity);
         } else {
             console.error(`FormCRUDJourney: Action is invalid. Please choose either (create | read | update | delete)`);
             // Object.assign(this.journey, this.defaultFormData);
         }
+
+        // Set initial state
+        store.dispatch(createInitialStateAction(createInitialState(this.props.entity)));
+    }
+
+    componentDidMount() {
+        // Change state
+        store.subscribe(() => this.forceUpdate());
     }
 
     // Handle when input data changed
-    onChange = (e, field) => {
-        let controlValue = '';
-        if (typeof (e) === 'string') {
-            controlValue = e;
-        } else {
-            controlValue = e.target.value;
-        }
-        console.log(`onChange: ${typeof (e)} - Value: ${controlValue} - Field: ${field}`);
-        // { status: 'success', message: '', valid: true }
-
-        const formFieldManager = this.state.formState[field];
-        formFieldManager.data.value = controlValue;
-        this.props.journey[field] = controlValue;
-
-        // Do validation base on interface validator
-        formFieldManager.data.validateStatus = formFieldManager.option.validator(controlValue);
-
-        this.setState({
-            formState: this.state.formState
-        });
+    onChange = (field, value) => {
+        store.dispatch(createChangeControlValueAction(field, value));
     }
 
     // Do validation
     doValidate = () => {
-        let isFormValid = true;
-        for (const field in this.state.formState) {
-            // Do validation base on interface validator
-            console.log(`Trigger validate on [${field}]: ${this.state.formState[field]}`);
-            const formFieldManager = this.state.formState[field];
-            if (formFieldManager.hidden) continue;
-            formFieldManager.data.validateStatus = formFieldManager.option.validator(formFieldManager.data.value);
-            isFormValid &= formFieldManager.data.validateStatus.valid;
-        }
-
-        // Re render
-        this.setState({
-            formState: this.state.formState
-        });
-
-        return isFormValid;
+        store.dispatch(createForceValidateAction());
+        return store.getState().isFormValidated;
     }
 
-    getJourney = () => {
-        const journey = {};
-        for (const field in this.state.formState) {
-            journey[field] = this.state.formState[field].data.value;
+    // Get journey
+    getEntity = () => {
+        const state = store.getState();
+
+        for (const field in this.props.entity) {
+            this.props.entity[field] = state[field].data.value;
         }
 
-        return journey;
+        return this.props.entity;
     }
 
     getValidationState = (field) => {
-        return this.state.formState[field].data.validateStatus.status;
+        return store.getState()[field].data.validateStatus.status;
     }
 
     getValidationMessage = (field) => {
-        return this.state.formState[field].data.validateStatus.message;
+        return store.getState()[field].data.validateStatus.message;
     }
 
+    // Render
+    // Must change to adapt 
     render() {
+        const state = store.getState();
+
         if (this.action === 'delete') {
             return (
                 <div></div>
@@ -160,45 +194,45 @@ export default class FormCRUDJourney extends React.Component {
             return (
                 <div>
                     <Form horizontal>
-                        <FormGroup controlId={this.state.formState['journeyName'].data.controlId} validationState={this.getValidationState('journeyName')}>
+                        <FormGroup controlId={state['journeyName'].data.controlId} validationState={this.getValidationState('journeyName')}>
                             <Col componentClass={ControlLabel} sm={2}>
-                                {this.state.formState['journeyName'].data.label}
+                                {state['journeyName'].data.label}
                             </Col>
                             <Col sm={10}>
                                 <FormControl
                                     type='text'
-                                    disabled={this.state.formState['journeyName'].data.isDisable}
-                                    value={this.state.formState['journeyName'].data.value}
-                                    placeholder={this.state.formState['journeyName'].placeHolder}
-                                    onChange={(e) => this.onChange(e, 'journeyName')} />
+                                    disabled={state['journeyName'].data.isDisable}
+                                    value={state['journeyName'].data.value}
+                                    placeholder={state['journeyName'].placeHolder}
+                                    onChange={(e) => this.onChange('journeyName', e.target.value)} />
                                 <FormControl.Feedback />
                                 <HelpBlock>{this.getValidationMessage('journeyName')}</HelpBlock>
                             </Col>
                         </FormGroup>
 
-                        <FormGroup controlId={this.state.formState['estimateStartTime'].data.controlId} validationState={this.getValidationState('estimateStartTime')}>
+                        <FormGroup controlId={state['estimateStartTime'].data.controlId} validationState={this.getValidationState('estimateStartTime')}>
                             <Col componentClass={ControlLabel} sm={2}>
-                                {this.state.formState['estimateStartTime'].data.label}
+                                {state['estimateStartTime'].data.label}
                             </Col>
                             <Col sm={10}>
                                 <DateTimeField
                                     inputFormat='YYYY/MM/DD - HH:mm:ss A'
-                                    dateTime={this.state.formState['estimateStartTime'].data.value}
-                                    onChange={(e) => this.onChange(e, 'estimateStartTime')}
+                                    dateTime={state['estimateStartTime'].data.value}
+                                    onChange={(e) => this.onChange('estimateStartTime', e)}
                                 />
                                 <HelpBlock>{this.getValidationMessage('estimateStartTime')}</HelpBlock>
                             </Col>
                         </FormGroup>
 
-                        <FormGroup controlId={this.state.formState['estimateEndTime'].data.controlId} validationState={this.getValidationState('estimateEndTime')}>
+                        <FormGroup controlId={state['estimateEndTime'].data.controlId} validationState={this.getValidationState('estimateEndTime')}>
                             <Col componentClass={ControlLabel} sm={2}>
-                                {this.state.formState['estimateEndTime'].data.label}
+                                {state['estimateEndTime'].data.label}
                             </Col>
                             <Col sm={10}>
                                 <DateTimeField
                                     inputFormat='YYYY/MM/DD - HH:mm:ss A'
-                                    dateTime={this.state.formState['estimateEndTime'].data.value}
-                                    onChange={(e) => this.onChange(e, 'estimateEndTime')}
+                                    dateTime={state['estimateEndTime'].data.value}
+                                    onChange={(e) => this.onChange('estimateEndTime', e)}
                                 />
                                 <HelpBlock>{this.getValidationMessage('estimateEndTime')}</HelpBlock>
                             </Col>

@@ -1,5 +1,5 @@
 import React from 'react';
-import {CreateJourneyModal} from './modal-form/crud-modal';
+import { CreateJourneyModal } from './modal-form/crud-modal';
 import StoreHelper from './helpers/StoreHelper';
 import CRUDTable from './CRUDTable';
 
@@ -7,18 +7,16 @@ import CRUDTable from './CRUDTable';
 export default class CRUDTableTemplate extends React.Component {
     constructor(props) {
         super(props);
-        this.products = StoreHelper.findAllProducts();
+        this.journeys = StoreHelper.findAllJourneys();
         this.state = {
-            data: this.products
+            data: this.journeys
         };
-
-        this.count = 0;
     }
 
     // Filter number
     filterNumber = (targetVal, filterVal, comparator) => {
         let valid = true;
-        
+
         switch (comparator) {
             case '=': {
                 if (targetVal != filterVal) {
@@ -43,7 +41,7 @@ export default class CRUDTableTemplate extends React.Component {
                 break;
             }
         }
-        
+
         return valid;
     }
 
@@ -60,18 +58,18 @@ export default class CRUDTableTemplate extends React.Component {
     onFilterChange = (filterObj) => {
         if (Object.keys(filterObj).length === 0) {
             this.setState({
-                data: this.products
+                data: this.journeys
             });
             return;
         }
 
         console.debug(`Filter structure: ${JSON.stringify(filterObj)}`);
-        const data = this.products.filter((product) => {
+        const data = this.journeys.filter((item) => {
             let valid = true;
             let filterValue;
 
             for (const key in filterObj) {
-                const targetValue = product[key];
+                const targetValue = item[key];
 
                 switch (filterObj[key].type) {
                     case 'NumberFilter': {
@@ -95,31 +93,29 @@ export default class CRUDTableTemplate extends React.Component {
             return valid;
         });
 
-        console.debug(`Count: ${this.count}`);
-        this.count = 0;
         this.setState({
             data: data
         });
     }
 
     // Handle add new item
-    handleAddAction = (product) => {
-        console.log(`Data to be added: ${JSON.stringify(product)}`);
+    handleAddAction = (entity) => {
+        console.log(`Data to be added: ${JSON.stringify(entity)}`);
         this.setState((state) => {
-            state.data = state.data.concat([product]);
+            state.data = state.data.concat([entity]);
             return state;
         });
     }
 
     // Handle edit item
-    handleEditAction = (product) => {
-        console.log(`Data to be edited: ${JSON.stringify(product)}`);
+    handleEditAction = (entity) => {
+        console.log(`Data to be edited: ${JSON.stringify(entity)}`);
         var tempData = this.state.data.slice();
 
         tempData.forEach((item) => {
-            if (item.id == product.id) {
+            if (item.id == entity.id) {
 
-                Object.assign(item, product);
+                Object.assign(item, entity);
                 return;
             }
         });
@@ -128,10 +124,10 @@ export default class CRUDTableTemplate extends React.Component {
     }
 
     // Handle delete item
-    handleDeleteAction = (itemId) => {
-        console.log(`Delete item id: ${itemId}`);
-        const data = this.state.data.filter((product) => {
-            return product.id != itemId;
+    handleDeleteAction = (entity) => {
+        console.log(`Delete item id: ${entity.id}`);
+        const data = this.state.data.filter((item) => {
+            return item.id != entity.id;
         });
 
         console.log(`Data after deleted: ${JSON.stringify(data)}`);
@@ -148,7 +144,7 @@ export default class CRUDTableTemplate extends React.Component {
                 <CRUDTable
                     handleDeleteAction={this.handleDeleteAction}
                     handleEditAction={this.handleEditAction}
-                    onFilterChange={this.onFilterChange.bind(this)}
+                    onFilterChange={this.onFilterChange}
                     { ...this.state } />
             </div>
         );
