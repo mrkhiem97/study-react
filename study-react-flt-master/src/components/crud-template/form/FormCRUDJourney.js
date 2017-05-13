@@ -1,7 +1,7 @@
 import React from 'react';
 import { createStore } from 'redux';
 import { JourneyValidatorHelper } from '../validators/JourneyValidatorHelper';
-import { ControlLabel, FormControl, FormGroup, HelpBlock, Form, Col } from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup, HelpBlock, Form, Col, Button, Glyphicon, Jumbotron } from 'react-bootstrap';
 import DateTimeField from 'react-bootstrap-datetimepicker';
 
 
@@ -203,56 +203,109 @@ export default class FormCRUDJourney extends React.Component {
         } else {
             return (
                 <div>
-                    <Form horizontal>
-                        <FormGroup bsSize='sm' controlId={state['journeyName'].data.controlId} validationState={this.getValidationState('journeyName')}>
-                            <Col componentClass={ControlLabel} sm={2}>
-                                {state['journeyName'].data.label}
-                            </Col>
-                            <Col sm={10}>
-                                <FormControl
-                                    type='text'
-                                    disabled={state['journeyName'].data.isDisable}
-                                    value={state['journeyName'].data.value}
-                                    placeholder={state['journeyName'].placeHolder}
-                                    onChange={(e) => this.onChange('journeyName', e.target.value)} />
-                                <FormControl.Feedback />
-                                <HelpBlock>{this.getValidationMessage('journeyName')}</HelpBlock>
-                            </Col>
-                        </FormGroup>
-                        <FormGroup bsSize='sm'>
-                            <Col sm={6}>
-                                <FormGroup controlId={state['estimateStartTime'].data.controlId} validationState={this.getValidationState('estimateStartTime')}>
-                                    <Col componentClass={ControlLabel} sm={4}>
-                                        {state['estimateStartTime'].data.label}
-                                    </Col>
-                                    <Col sm={8}>
-                                        <DateTimeField
-                                            inputFormat='YYYY/MM/DD - HH:mm:ss A'
-                                            dateTime={state['estimateStartTime'].data.value}
-                                            onChange={(e) => this.onChange('estimateStartTime', e)}
-                                        />
-                                        <HelpBlock>{this.getValidationMessage('estimateStartTime')}</HelpBlock>
-                                    </Col>
-                                </FormGroup>
-                            </Col>
-                            <Col sm={6}>
-                                <FormGroup controlId={state['estimateEndTime'].data.controlId} validationState={this.getValidationState('estimateEndTime')}>
-                                    <Col componentClass={ControlLabel} sm={4}>
-                                        {state['estimateEndTime'].data.label}
-                                    </Col>
-                                    <Col sm={8}>
-                                        <DateTimeField
-                                            inputFormat='YYYY/MM/DD - HH:mm:ss A'
-                                            dateTime={state['estimateEndTime'].data.value}
-                                            onChange={(e) => this.onChange('estimateEndTime', e)}
-                                        />
-                                        <HelpBlock>{this.getValidationMessage('estimateEndTime')}</HelpBlock>
-                                    </Col>
-                                </FormGroup>
-                            </Col>
-                        </FormGroup>
+                    <div className=''>
+                        <Form horizontal>
+                            <FormGroup bsSize='sm' controlId={state['journeyName'].data.controlId} validationState={this.getValidationState('journeyName')}>
+                                <Col componentClass={ControlLabel} sm={2}>
+                                    {state['journeyName'].data.label}
+                                </Col>
+                                <Col sm={10}>
+                                    <FormControl
+                                        type='text'
+                                        disabled={state['journeyName'].data.isDisable}
+                                        value={state['journeyName'].data.value}
+                                        placeholder={state['journeyName'].placeHolder}
+                                        onChange={(e) => this.onChange('journeyName', e.target.value)} />
+                                    <FormControl.Feedback />
+                                    <HelpBlock>{this.getValidationMessage('journeyName')}</HelpBlock>
+                                </Col>
+                            </FormGroup>
+                            <FormGroup bsSize='sm'>
+                                <Col sm={6}>
+                                    <FormGroup controlId={state['estimateStartTime'].data.controlId} validationState={this.getValidationState('estimateStartTime')}>
+                                        <Col componentClass={ControlLabel} sm={4}>
+                                            {state['estimateStartTime'].data.label}
+                                        </Col>
+                                        <Col sm={8}>
+                                            <DateTimeField
+                                                inputFormat='YYYY/MM/DD - HH:mm:ss A'
+                                                dateTime={state['estimateStartTime'].data.value}
+                                                onChange={(e) => this.onChange('estimateStartTime', e)}
+                                            />
+                                            <HelpBlock>{this.getValidationMessage('estimateStartTime')}</HelpBlock>
+                                        </Col>
+                                    </FormGroup>
+                                </Col>
+                                <Col sm={6}>
+                                    <FormGroup controlId={state['estimateEndTime'].data.controlId} validationState={this.getValidationState('estimateEndTime')}>
+                                        <Col componentClass={ControlLabel} sm={4}>
+                                            {state['estimateEndTime'].data.label}
+                                        </Col>
+                                        <Col sm={8}>
+                                            <DateTimeField
+                                                inputFormat='YYYY/MM/DD - HH:mm:ss A'
+                                                dateTime={state['estimateEndTime'].data.value}
+                                                onChange={(e) => this.onChange('estimateEndTime', e)}
+                                            />
+                                            <HelpBlock>{this.getValidationMessage('estimateEndTime')}</HelpBlock>
+                                        </Col>
+                                    </FormGroup>
+                                </Col>
+                            </FormGroup>
+                        </Form>
+                    </div>
+                    <div className=''>
+                        <Form horizontal>
+                            <FormGroup bsSize='sm'>
+                                <Col smOffset={0} sm={2}>
+                                    <Button bsSize='xsmall'>✙ New Route</Button>
+                                </Col>
+                                <Col smOffset={0} sm={2}>
+                                    <FormControl
+                                        type='text'
+                                        placeholder='Start...'
+                                    />
+                                    <FormControl.Feedback />
+                                </Col>
+                                <Col smOffset={0} sm={2}>
+                                    <FormControl
+                                        type='text'
+                                        placeholder='End...'
+                                    />
+                                    <FormControl.Feedback />
+                                </Col>
 
-                    </Form>
+                                <Col smOffset={0} sm={5}>
+                                    <Col smOffset={0} sm={4}>
+                                        <ControlLabel>From time</ControlLabel>
+                                    </Col>
+                                    <Col smOffset={0} sm={8}>
+                                        <DateTimeField
+                                            inputFormat='YYYY/MM/DD - HH:mm:ss A'
+                                        />
+                                    </Col>
+                                </Col>
+                                <Col smOffset={0} sm={1}>
+                                    <Button bsSize='xsmall' bsStyle='info'>
+                                        <Glyphicon glyph="glyphicon glyphicon-plus" />
+                                    </Button>
+                                </Col>
+                            </FormGroup>
+
+                            <FormGroup bsSize='sm'>
+                                <Col smOffset={2} sm={10}>
+                                    <Jumbotron>
+                                        <h1>Hello, world!</h1>
+                                        <p>This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+                                        <p><Button bsStyle="primary">Learn more</Button></p>
+                                    </Jumbotron>
+                                </Col>
+                            </FormGroup>
+
+
+
+                        </Form>
+                    </div>
                 </div>
             );
         }

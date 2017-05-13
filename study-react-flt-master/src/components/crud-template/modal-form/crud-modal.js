@@ -1,5 +1,5 @@
 import React from 'react';
-import { ButtonToolbar, Button, Modal } from 'react-bootstrap';
+import { ButtonToolbar, Button, Modal, Glyphicon } from 'react-bootstrap';
 import FormCRUDJourney from '../form/FormCRUDJourney';
 import moment from 'moment';
 
@@ -62,7 +62,10 @@ export class CreateJourneyModal extends React.Component {
     render = () => {
         return (
             <ButtonToolbar>
-                <Button bsStyle='success' bsSize='small' onClick={this.showModal}>✙ New Journey</Button>
+                <Button bsStyle='success' bsSize='small' onClick={this.showModal}>
+                    <Glyphicon glyph="glyphicon glyphicon-plus" />
+                    New Journey
+                </Button>
 
                 <Modal {...this.props} bsSize='large' show={this.state.show} onHide={this.hideModal} dialogClassName='custom-modal'>
                     <Modal.Header closeButton>
