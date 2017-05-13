@@ -7,10 +7,30 @@ import CRUDTable from './CRUDTable';
 export default class CRUDTableTemplate extends React.Component {
     constructor(props) {
         super(props);
+
         this.journeys = StoreHelper.findAllJourneys();
         this.state = {
-            data: this.journeys
+            data: this.journeys.slice(0, 2),
+            totalDataSize: this.journeys.length,
+            sizePerPage: 2,
+            currentPage: 1
         };
+    }
+
+    onPageChange = (page, sizePerPage) => {
+        const currentIndex = (page - 1) * sizePerPage;
+        this.setState({
+            data: this.journeys.slice(currentIndex, currentIndex + sizePerPage),
+            currentPage: page
+        });
+    }
+
+    onSizePerPageList = (sizePerPage) => {
+        const currentIndex = (this.state.currentPage - 1) * sizePerPage;
+        this.setState({
+            data: this.journeys.slice(currentIndex, currentIndex + sizePerPage),
+            sizePerPage: sizePerPage
+        });
     }
 
     // Filter number
@@ -101,9 +121,12 @@ export default class CRUDTableTemplate extends React.Component {
     // Handle add new item
     handleAddAction = (entity) => {
         console.log(`Data to be added: ${JSON.stringify(entity)}`);
-        this.setState((state) => {
-            state.data = state.data.concat([entity]);
-            return state;
+
+        const newState = this.state.data.concat([entity]);
+        console.log(`New state: ${JSON.stringify(newState)}`);
+
+        this.setState({
+            data: newState
         });
     }
 
@@ -138,12 +161,15 @@ export default class CRUDTableTemplate extends React.Component {
 
     // Render
     render() {
+        console.log(`Re-render outside: ${JSON.stringify(this.state.data)}`);
         return (
             <div>
                 <CreateJourneyModal handleAddAction={this.handleAddAction} />
                 <CRUDTable
                     handleDeleteAction={this.handleDeleteAction}
                     handleEditAction={this.handleEditAction}
+                    onPageChange={this.onPageChange}
+                    onSizePerPageList={this.onSizePerPageList}
                     onFilterChange={this.onFilterChange}
                     { ...this.state } />
             </div>

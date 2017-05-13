@@ -1,5 +1,4 @@
 import React from 'react';
-import { createStore } from 'redux';
 import { ButtonToolbar, Button, Modal } from 'react-bootstrap';
 import FormCRUDJourney from '../form/FormCRUDJourney';
 import moment from 'moment';
@@ -10,10 +9,10 @@ export class CreateJourneyModal extends React.Component {
         super(props);
 
         this.defaultJourney = {
-            id: '',
+            id: 0,
             journeyName: '',
-            estimateStartTime: `${moment().valueOf()}`,
-            estimateEndTime: `${moment().valueOf()}`,
+            estimateStartTime: moment().valueOf(),
+            estimateEndTime: moment().valueOf(),
         };
 
         this.journey = {};
@@ -121,11 +120,11 @@ export class DeleteJourneyModal extends React.Component {
     render = () => {
         return (
             <ButtonToolbar>
-                <Button bsStyle="danger" bsSize="small" onClick={this.showModal}>Delete</Button>
+                <Button bsStyle='danger' bsSize='xsmall' onClick={this.showModal}>Delete</Button>
 
-                <Modal {...this.props} show={this.state.show} onHide={this.hideModal} dialogClassName="custom-modal">
+                <Modal {...this.props} show={this.state.show} onHide={this.hideModal} dialogClassName='custom-modal'>
                     <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-lg">Delete this journey?</Modal.Title>
+                        <Modal.Title id='contained-modal-title-lg'>Delete this journey?</Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>
@@ -133,7 +132,7 @@ export class DeleteJourneyModal extends React.Component {
 
                     <Modal.Footer>
                         <Button onClick={this.hideModal}>Cancel</Button>
-                        <Button bsStyle="danger" onClick={this.handleDeleteAction}>Delete</Button>
+                        <Button bsStyle='danger' onClick={this.handleDeleteAction}>Delete</Button>
                     </Modal.Footer>
                 </Modal>
             </ButtonToolbar>
@@ -185,11 +184,11 @@ export class EditJourneyModal extends React.Component {
     render = () => {
         return (
             <ButtonToolbar>
-                <Button bsStyle="warning" bsSize="small" onClick={this.showModal}>Edit</Button>
+                <Button bsStyle='warning' bsSize='xsmall' onClick={this.showModal}>Edit</Button>
 
-                <Modal {...this.props} show={this.state.show} onHide={this.hideModal} dialogClassName="custom-modal">
+                <Modal {...this.props} bsSize='large' show={this.state.show} onHide={this.hideModal} dialogClassName='custom-modal'>
                     <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-lg">Edit product</Modal.Title>
+                        <Modal.Title id='contained-modal-title-lg'>Edit journey</Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>
@@ -201,7 +200,7 @@ export class EditJourneyModal extends React.Component {
 
                     <Modal.Footer>
                         <Button onClick={this.hideModal}>Cancel</Button>
-                        <Button bsStyle="primary" onClick={this.handleEditAction}>Save changes</Button>
+                        <Button bsStyle='primary' onClick={this.handleEditAction}>Save changes</Button>
                     </Modal.Footer>
                 </Modal>
             </ButtonToolbar>
@@ -237,11 +236,11 @@ export class ViewJourneyModal extends React.Component {
     render = () => {
         return (
             <ButtonToolbar>
-                <Button bsStyle="info" bsSize="small" onClick={this.showModal}>Detail</Button>
+                <Button bsStyle='info' bsSize='xsmall' onClick={this.showModal}>Detail</Button>
 
-                <Modal {...this.props} show={this.state.show} onHide={this.hideModal} dialogClassName="custom-modal">
+                <Modal {...this.props} bsSize='large' show={this.state.show} onHide={this.hideModal} dialogClassName='custom-modal'>
                     <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-lg">Product detail</Modal.Title>
+                        <Modal.Title id='contained-modal-title-lg'>Journey detail</Modal.Title>
                     </Modal.Header>
 
                     <Modal.Body>

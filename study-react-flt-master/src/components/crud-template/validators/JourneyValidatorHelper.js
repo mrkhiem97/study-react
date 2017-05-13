@@ -1,4 +1,4 @@
-export class BSTValidatorHelper {
+export class JourneyValidatorHelper {
     // status: success - warning - error
 
     // Validate product id
@@ -26,7 +26,7 @@ export class BSTValidatorHelper {
     }
 
     // Validate product price
-    static validatateJourneyPrice = (value) => {
+    static validatateJourneyDateTime = (value) => {
         const REGEX = /^\d+(\.\d+)?$/;
         const isMatch = REGEX.test(value);
 

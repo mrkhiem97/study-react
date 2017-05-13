@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStore } from 'redux';
-import { BSTValidatorHelper } from '../custom-validators/custom-validator';
+import { JourneyValidatorHelper } from '../validators/JourneyValidatorHelper';
 import { ControlLabel, FormControl, FormGroup, HelpBlock, Form, Col } from 'react-bootstrap';
 import DateTimeField from 'react-bootstrap-datetimepicker';
 
@@ -12,7 +12,11 @@ function reducer(state, action) {
         Object.assign(newState, state);
 
         const formFieldManager = newState[action.field];
-        formFieldManager.data.value = action.value;
+        if (!isNaN(action.value)) {
+            formFieldManager.data.value = Number(action.value);
+        } else {
+            formFieldManager.data.value = String(action.value);
+        }
 
         // Do validation base on interface validator
         formFieldManager.data.validateStatus = formFieldManager.option.validator(action.value);
@@ -34,7 +38,7 @@ function reducer(state, action) {
         }
 
         return newState;
-    } else if (action.type == 'CREATE_INITIAL_STATE') {
+    } else if (action.type === 'CREATE_INITIAL_STATE') {
         return action.initialState;
     }
 
@@ -53,7 +57,7 @@ function createInitialState(journey) {
                 validateStatus: {},
             },
             option: {
-                validator: BSTValidatorHelper.validatateJourneyId,
+                validator: JourneyValidatorHelper.validatateJourneyId,
             }
         },
         journeyName: {
@@ -64,7 +68,7 @@ function createInitialState(journey) {
                 value: journey.journeyName,
                 validateStatus: {},
             }, option: {
-                validator: BSTValidatorHelper.validatateJourneyName,
+                validator: JourneyValidatorHelper.validatateJourneyName,
             }
         },
         estimateStartTime: {
@@ -75,7 +79,7 @@ function createInitialState(journey) {
                 value: journey.estimateStartTime,
                 validateStatus: {},
             }, option: {
-                validator: BSTValidatorHelper.validatateJourneyPrice,
+                validator: JourneyValidatorHelper.validatateJourneyDateTime,
             }
         },
         estimateEndTime: {
@@ -86,7 +90,7 @@ function createInitialState(journey) {
                 value: journey.estimateEndTime,
                 validateStatus: {},
             }, option: {
-                validator: BSTValidatorHelper.validatateJourneyPrice,
+                validator: JourneyValidatorHelper.validatateJourneyDateTime,
             }
         },
     };
@@ -168,6 +172,12 @@ export default class FormCRUDJourney extends React.Component {
 
         for (const field in this.props.entity) {
             this.props.entity[field] = state[field].data.value;
+
+            if (!isNaN(state[field].data.value)) {
+                this.props.entity[field] = Number(state[field].data.value);
+            } else {
+                this.props.entity[field] = String(state[field].data.value);
+            }
         }
 
         return this.props.entity;
@@ -194,7 +204,7 @@ export default class FormCRUDJourney extends React.Component {
             return (
                 <div>
                     <Form horizontal>
-                        <FormGroup controlId={state['journeyName'].data.controlId} validationState={this.getValidationState('journeyName')}>
+                        <FormGroup bsSize='sm' controlId={state['journeyName'].data.controlId} validationState={this.getValidationState('journeyName')}>
                             <Col componentClass={ControlLabel} sm={2}>
                                 {state['journeyName'].data.label}
                             </Col>
@@ -209,34 +219,39 @@ export default class FormCRUDJourney extends React.Component {
                                 <HelpBlock>{this.getValidationMessage('journeyName')}</HelpBlock>
                             </Col>
                         </FormGroup>
-
-                        <FormGroup controlId={state['estimateStartTime'].data.controlId} validationState={this.getValidationState('estimateStartTime')}>
-                            <Col componentClass={ControlLabel} sm={2}>
-                                {state['estimateStartTime'].data.label}
+                        <FormGroup bsSize='sm'>
+                            <Col sm={6}>
+                                <FormGroup controlId={state['estimateStartTime'].data.controlId} validationState={this.getValidationState('estimateStartTime')}>
+                                    <Col componentClass={ControlLabel} sm={4}>
+                                        {state['estimateStartTime'].data.label}
+                                    </Col>
+                                    <Col sm={8}>
+                                        <DateTimeField
+                                            inputFormat='YYYY/MM/DD - HH:mm:ss A'
+                                            dateTime={state['estimateStartTime'].data.value}
+                                            onChange={(e) => this.onChange('estimateStartTime', e)}
+                                        />
+                                        <HelpBlock>{this.getValidationMessage('estimateStartTime')}</HelpBlock>
+                                    </Col>
+                                </FormGroup>
                             </Col>
-                            <Col sm={10}>
-                                <DateTimeField
-                                    inputFormat='YYYY/MM/DD - HH:mm:ss A'
-                                    dateTime={state['estimateStartTime'].data.value}
-                                    onChange={(e) => this.onChange('estimateStartTime', e)}
-                                />
-                                <HelpBlock>{this.getValidationMessage('estimateStartTime')}</HelpBlock>
+                            <Col sm={6}>
+                                <FormGroup controlId={state['estimateEndTime'].data.controlId} validationState={this.getValidationState('estimateEndTime')}>
+                                    <Col componentClass={ControlLabel} sm={4}>
+                                        {state['estimateEndTime'].data.label}
+                                    </Col>
+                                    <Col sm={8}>
+                                        <DateTimeField
+                                            inputFormat='YYYY/MM/DD - HH:mm:ss A'
+                                            dateTime={state['estimateEndTime'].data.value}
+                                            onChange={(e) => this.onChange('estimateEndTime', e)}
+                                        />
+                                        <HelpBlock>{this.getValidationMessage('estimateEndTime')}</HelpBlock>
+                                    </Col>
+                                </FormGroup>
                             </Col>
                         </FormGroup>
 
-                        <FormGroup controlId={state['estimateEndTime'].data.controlId} validationState={this.getValidationState('estimateEndTime')}>
-                            <Col componentClass={ControlLabel} sm={2}>
-                                {state['estimateEndTime'].data.label}
-                            </Col>
-                            <Col sm={10}>
-                                <DateTimeField
-                                    inputFormat='YYYY/MM/DD - HH:mm:ss A'
-                                    dateTime={state['estimateEndTime'].data.value}
-                                    onChange={(e) => this.onChange('estimateEndTime', e)}
-                                />
-                                <HelpBlock>{this.getValidationMessage('estimateEndTime')}</HelpBlock>
-                            </Col>
-                        </FormGroup>
                     </Form>
                 </div>
             );
