@@ -1,3 +1,5 @@
+import 'react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css';
+import './custom-modal.css';
 import React from 'react';
 import { ButtonToolbar, Button, Modal, Glyphicon } from 'react-bootstrap';
 import FormCRUDJourney from '../form/FormCRUDJourney';
@@ -67,7 +69,7 @@ export class CreateJourneyModal extends React.Component {
                     New Journey
                 </Button>
 
-                <Modal {...this.props} bsSize='large' show={this.state.show} onHide={this.hideModal} dialogClassName='custom-modal'>
+                <Modal {...this.props} show={this.state.show} onHide={this.hideModal} dialogClassName='modal-lg  custom-modal'>
                     <Modal.Header closeButton>
                         <Modal.Title id='contained-modal-title-lg'>Add new Journeys</Modal.Title>
                     </Modal.Header>
