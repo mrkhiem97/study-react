@@ -161,7 +161,6 @@ export default class CRUDTableTemplate extends React.Component {
 
     // Render
     render() {
-        console.log(`Re-render outside: ${JSON.stringify(this.state.data)}`);
         return (
             <div>
                 <CreateJourneyModal handleAddAction={this.handleAddAction} />

@@ -1,108 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 import { JourneyValidatorHelper } from '../validators/JourneyValidatorHelper';
 import { ControlLabel, FormControl, FormGroup, HelpBlock, Form, Col, Button, Glyphicon, Panel, Table } from 'react-bootstrap';
 import DateTimeField from 'react-bootstrap-datetimepicker';
 import moment from 'moment';
+import {reducer} from './rootReducer'
+import {
+    createChangeControlValueAction,
+    createChangeRouteControlValueAction,
+    createSearchRouteAction,
+    createSearchRouteActionAsyn,
+    createAddRouteAction,
+    createForceValidateAction,
+    createInitialStateAction,
+} from './actions'
+import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 
-function reducer(state, action) {
-    switch (action.type) {
-        case 'CHANGE_CONTROL_VALUE': {
-            // Create new state
-            const newState = {};
-            Object.assign(newState, state);
-
-            const formFieldManager = newState.mainForm[action.field];
-            if (!isNaN(action.value)) {
-                formFieldManager.data.value = Number(action.value);
-            } else {
-                formFieldManager.data.value = String(action.value);
-            }
-
-            // Do validation base on interface validator
-            formFieldManager.data.validateStatus = formFieldManager.option.validator(action.value);
-
-            return newState;
-        }
-
-        case 'CHANGE_ROUTE_CONTROL_VALUE': {
-            // Create new state
-            const newState = {};
-            Object.assign(newState, state);
-
-            const formFieldManager = newState.subForm[action.field];
-            if (!isNaN(action.value)) {
-                formFieldManager.data.value = Number(action.value);
-            } else {
-                formFieldManager.data.value = String(action.value);
-            }
-
-            return newState;
-        }
-
-        case 'ADD_ROUTE': {
-            // Create new state
-            const newState = {};
-            Object.assign(newState, state);
-
-            const routeStartAddress = state.subForm['routeStartAddress'].data.value;
-            const routeEndAddress = state.subForm['routeEndAddress'].data.value;
-            const routeStartTime = state.subForm['routeStartTime'].data.value;
-            console.log(`Start address: ${routeStartAddress} - End addess: ${routeEndAddress} - StartTime: ${routeStartTime}`);
-
-            let isInputsValid = true;
-            const routeInputArr = [routeStartAddress, routeEndAddress, routeStartTime];
-            routeInputArr.forEach((x) => {
-                if (x.toString().trim() === '') {
-                    isInputsValid = false;
-                    return;
-                }
-            });
-
-            if (!isInputsValid) return;
-
-            const route = {
-                routeStartAddress,
-                routeEndAddress,
-                routeStartTime
-            };
-
-            // Add to table
-            newState.routes.push(route);
-
-            return newState;
-        }
-
-        case 'FORCE_VALIDATE': {
-            const newState = {};
-            // Create new state
-            Object.assign(newState, state);
-            for (const field in state.mainForm) {
-                if (field === 'isFormValidated') continue;
-
-                // Do validation base on interface validator
-                const formFieldManager = newState.mainForm[field];
-                if (formFieldManager.hidden) continue;
-
-                if (formFieldManager.option.validator !== null) {
-                    formFieldManager.data.validateStatus = formFieldManager.option.validator(formFieldManager.data.value);
-                    newState['isFormValidated'] &= formFieldManager.data.validateStatus.valid;
-                }
-            }
-
-            return newState;
-        }
-
-        case 'CREATE_INITIAL_STATE': {
-            return action.initialState;
-        }
-
-        default: {
-            return state;
-        }
-    }
-}
 
 function createInitialState(journey) {
     return {
@@ -158,6 +73,8 @@ function createInitialState(journey) {
         },
 
         subForm: {
+            isFormValidated: true,
+
             routeStartAddress: {
                 hidden: false,
                 data: {
@@ -166,6 +83,9 @@ function createInitialState(journey) {
                     value: '',
                     placeholder: 'Start address',
                     validateStatus: {},
+                    allowNew: false,
+                    multiple: false,
+                    options: [],
                 }, option: {
                     validator: null,
                 }
@@ -179,6 +99,9 @@ function createInitialState(journey) {
                     value: '',
                     placeholder: 'End address',
                     validateStatus: {},
+                    allowNew: false,
+                    multiple: false,
+                    options: [],
                 }, option: {
                     validator: null,
                 }
@@ -202,42 +125,8 @@ function createInitialState(journey) {
 }
 
 // Redux store declare
-const store = createStore(reducer);
+const store = createStore(reducer, applyMiddleware(thunk));
 
-function createChangeControlValueAction(field, value) {
-    return {
-        type: 'CHANGE_CONTROL_VALUE',
-        field: field,
-        value: value
-    }
-}
-
-function createChangeRouteControlValueAction(field, value) {
-    return {
-        type: 'CHANGE_ROUTE_CONTROL_VALUE',
-        field: field,
-        value: value
-    }
-}
-
-function createAddRouteAction() {
-    return {
-        type: 'ADD_ROUTE',
-    }
-}
-
-function createForceValidateAction() {
-    return {
-        type: 'FORCE_VALIDATE',
-    }
-}
-
-function createInitialStateAction(initialState) {
-    return {
-        type: 'CREATE_INITIAL_STATE',
-        initialState: initialState
-    }
-}
 
 /* Create Journey Form */
 export default class FormCRUDJourney extends React.Component {
@@ -248,21 +137,10 @@ export default class FormCRUDJourney extends React.Component {
         this.action = this.props.action;
 
         // 3. Base on action, decide the initial state of form data
-        if (this.action === 'create') {
-            console.log(`FormCRUDJourney: action = create`);
-            // Object.assign(this.journey, this.defaultFormData);
-        } else if (this.action === 'update') {
-            console.log(`FormCRUDJourney: action = update`);
-            // Object.assign(this.journey, this.props.entity);
-        } else if (this.action === 'read') {
-            console.log(`FormCRUDJourney: action = read`);
-            // Object.assign(this.journey, this.props.entity);
-        } else if (this.action === 'delete') {
-            console.log(`FormCRUDJourney: action = delete`);
-            // Object.assign(this.journey, this.props.entity);
+        if (this.action === 'create' || this.action === 'update' || this.action === 'read' || this.action === 'delete') {
+            console.log(`FormCRUDJourney: action = ${this.action}`);
         } else {
             console.error(`FormCRUDJourney: Action is invalid. Please choose either (create | read | update | delete)`);
-            // Object.assign(this.journey, this.defaultFormData);
         }
 
         // Set initial state
@@ -292,7 +170,7 @@ export default class FormCRUDJourney extends React.Component {
         for (const field in this.props.entity) {
             this.props.entity[field] = state.mainForm[field].data.value;
 
-            if (!isNaN(state[field].data.value)) {
+            if (!isNaN(state.mainForm[field].data.value)) {
                 this.props.entity[field] = Number(state.mainForm[field].data.value);
             } else {
                 this.props.entity[field] = String(state.mainForm[field].data.value);
@@ -302,8 +180,8 @@ export default class FormCRUDJourney extends React.Component {
         return this.props.entity;
     }
 
-    onRouteFormChange = (field, value) => {
-        store.dispatch(createChangeRouteControlValueAction(field, value));
+    onRouteFormChange = (field, options) => {
+        store.dispatch(createChangeRouteControlValueAction(field, options));
     }
 
     onAddRoute = () => {
@@ -314,6 +192,14 @@ export default class FormCRUDJourney extends React.Component {
     getRoutes = () => {
         return store.getState().routes;
     }
+
+    onSearch = (field, query) => {
+        store.dispatch(createSearchRouteActionAsyn(field, query));
+    }
+
+    filterByCallback = (option, text) => {
+        return true;
+    };
 
     // Render
     // Must change to adapt 
@@ -339,8 +225,8 @@ export default class FormCRUDJourney extends React.Component {
                         <td>{route.routeEndAddress}</td>
                         <td>{moment(route.routeStartTime).format('YYYY/MM/DD - HH:mm:ss A')}</td>
                         <td>
-                            <Button bsSize='xsmall' bsStyle="link">
-                                <Glyphicon glyph="glyphicon glyphicon-remove" />
+                            <Button bsSize='xsmall' bsStyle='link'>
+                                <Glyphicon glyph='glyphicon glyphicon-remove' />
                             </Button>
                         </td>
                     </tr>
@@ -410,20 +296,26 @@ export default class FormCRUDJourney extends React.Component {
 
                     {/* Routes */}
                     <div className=''>
-                        <Panel header="Journey routes...">
+                        <Panel header='Journey routes...'>
                             <Col smOffset={0} sm={6}>
-                                <Form>
+                                <Form horizontal>
                                     <FormGroup bsSize='sm'>
                                         <Col componentClass={ControlLabel} sm={3}>
                                             Start address
                                         </Col>
                                         <Col smOffset={0} sm={9}>
-                                            <FormControl
-                                                type='text'
-                                                disabled={stateRouteStartAddress.isDisable}
-                                                value={stateRouteStartAddress.value}
+                                            <AsyncTypeahead
+                                                {...stateRouteStartAddress}
+                                                onSearch={(query) => { this.onSearch('routeStartAddress', query) }}
+                                                filterBy={this.filterByCallback}
+                                                onChange={(options) => this.onRouteFormChange('routeStartAddress', options)}
+                                                renderMenuItemChildren={option => (
+                                                    <div>
+                                                        {option}
+                                                    </div>
+                                                )}
                                                 placeholder={stateRouteStartAddress.placeholder}
-                                                onChange={(e) => this.onRouteFormChange('routeStartAddress', e.target.value)} />
+                                            />
                                             <FormControl.Feedback />
                                             <HelpBlock></HelpBlock>
                                         </Col>
@@ -434,12 +326,18 @@ export default class FormCRUDJourney extends React.Component {
                                             End address
                                         </Col>
                                         <Col smOffset={0} sm={9}>
-                                            <FormControl
-                                                type='text'
-                                                disabled={stateRouteEndAddress.isDisable}
-                                                value={stateRouteEndAddress.value}
+                                            <AsyncTypeahead
+                                                {...stateRouteEndAddress}
+                                                onSearch={(query) => { this.onSearch('routeEndAddress', query) }}
+                                                filterBy={this.filterByCallback}
+                                                onChange={(options) => this.onRouteFormChange('routeEndAddress', options)}
+                                                renderMenuItemChildren={option => (
+                                                    <div>
+                                                        {option}
+                                                    </div>
+                                                )}
                                                 placeholder={stateRouteEndAddress.placeholder}
-                                                onChange={(e) => this.onRouteFormChange('routeEndAddress', e.target.value)} />
+                                            />
                                             <FormControl.Feedback />
                                             <HelpBlock></HelpBlock>
                                         </Col>
@@ -449,7 +347,7 @@ export default class FormCRUDJourney extends React.Component {
                                         <Col componentClass={ControlLabel} sm={3}>
                                             Start time
                                         </Col>
-                                        <Col smOffset={0} sm={8}>
+                                        <Col smOffset={0} sm={7}>
                                             <DateTimeField
                                                 inputFormat='YYYY/MM/DD - HH:mm:ss A'
                                                 dateTime={stateRouteStartTime.value}
@@ -458,16 +356,16 @@ export default class FormCRUDJourney extends React.Component {
                                             <FormControl.Feedback />
                                             <HelpBlock></HelpBlock>
                                         </Col>
-                                        <Col smOffset={0} sm={1}>
+                                        <Col smOffset={0} sm={2}>
                                             <Button bsSize='xsmall' bsStyle='info' onClick={this.onAddRoute}>
-                                                <Glyphicon glyph="glyphicon glyphicon-plus" />
+                                                <Glyphicon glyph='glyphicon glyphicon-plus' />
                                             </Button>
                                         </Col>
                                     </FormGroup>
 
                                     <FormGroup bsSize='sm'>
                                         <Col smOffset={0} sm={12}>
-                                            <Panel collapsible defaultExpanded header="Routes.....">
+                                            <Panel collapsible defaultExpanded header='Routes.....'>
                                                 <Table condensed hover>
                                                     <tbody>
                                                         {Routes}
